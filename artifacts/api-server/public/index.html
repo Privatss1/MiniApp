@@ -142,71 +142,60 @@
     </style>
 
     <!--
-      FIX #2: Агрессивный фикс для Framer Motion opacity:0.
-      setProperty('opacity', '1', 'important') на inline style ПОБЕЖДАЕТ последующие
-      el.style.opacity = '0' от анимационного цикла FM, потому что !important
-      имеет приоритет над обычным assignment даже в inline стилях.
-      Запускается по интервалу И через MutationObserver при навигации по вкладкам.
+      FIX #2: WAAPI-aware фикс для Framer Motion v12+.
+      FM v12 использует Web Animations API (getAnimations()), а НЕ inline styles.
+      Поэтому el.style.opacity пуст, а анимация управляется через WAAPI.
+      anim.finish() прыгает в конечное состояние (opacity:1).
+      FM использует fill:'both' — конечное состояние сохраняется.
+      Дополнительно: inline opacity:0 и CSS-переменные --motion-opacity.
     -->
     <script>
       (function () {
         var _fixTimer = null;
         var _fixAttempts = 0;
-        var _maxAttempts = 80; // 4 секунды по 50ms
+        var _maxAttempts = 100; // 5 секунд по 50ms
 
-        function forceGameCardsVisible() {
-          var fixed = 0;
-
-          // Целимся точечно: игровой экран и карточки по Tailwind-классам
-          // Контейнер страницы Игры: className содержит 'space-y-5'
-          var containers = document.querySelectorAll('.space-y-5');
-          for (var i = 0; i < containers.length; i++) {
-            var c = containers[i];
-            var cls = c.className || '';
-            if (cls.indexOf('p-4') !== -1 && cls.indexOf('relative') !== -1) {
-              c.style.setProperty('opacity', '1', 'important');
-              c.style.setProperty('transform', 'none', 'important');
-              fixed++;
-            }
-          }
-
-          // Карточки игр: class содержит 'h-[172px]'
-          var cards = document.querySelectorAll('[class*="h-[172px]"]');
-          for (var j = 0; j < cards.length; j++) {
-            var card = cards[j];
-            card.style.setProperty('opacity', '1', 'important');
-            card.style.setProperty('transform', 'none', 'important');
-            fixed++;
-          }
-
-          // Также исправляем ВСЕХ Framer Motion детей с застрявшим opacity:0
-          // в пределах #root (не трогаем splash, nav и т.д.)
+        function forceVisible() {
           var root = document.getElementById('root');
-          if (root) {
-            var all = root.querySelectorAll('*');
-            for (var k = 0; k < all.length; k++) {
-              var el = all[k];
-              // Пропускаем: nav, #tg-splash и их детей
-              if (el.tagName === 'NAV') continue;
-              if (el.id === 'tg-splash') continue;
-              // Фиксируем только те у кого ЯВНО opacity:0 в inline style
-              var inlineOpacity = el.style.opacity;
-              if (inlineOpacity === '0') {
-                el.style.setProperty('opacity', '1', 'important');
-                fixed++;
-              }
-            }
-          }
+          if (!root) return;
 
-          return fixed;
+          var all = root.querySelectorAll('*');
+          for (var k = 0; k < all.length; k++) {
+            var el = all[k];
+            // Пропускаем nav и splash — у них opacity intentional
+            if (el.tagName === 'NAV') continue;
+            if (el.id === 'tg-splash') continue;
+
+            try {
+              // Метод 1: computed opacity — ловит и WAAPI и inline styles
+              var cs = window.getComputedStyle(el);
+              var op = parseFloat(cs.opacity);
+              if (op < 0.05) {
+                // Завершаем все WAAPI-анимации (FM v12) → прыжок в opacity:1
+                if (el.getAnimations) {
+                  var anims = el.getAnimations();
+                  for (var a = 0; a < anims.length; a++) {
+                    try { anims[a].finish(); } catch (e2) {}
+                  }
+                }
+                // Страховочный inline-style
+                el.style.setProperty('opacity', '1', 'important');
+                el.style.setProperty('transform', 'none', 'important');
+
+                // CSS-переменные FM (некоторые версии)
+                try {
+                  el.style.setProperty('--motion-opacity', '1', 'important');
+                } catch (e3) {}
+              }
+            } catch (e) {}
+          }
         }
 
         function startFix() {
           _fixAttempts = 0;
           if (_fixTimer) clearInterval(_fixTimer);
-
           _fixTimer = setInterval(function () {
-            forceGameCardsVisible();
+            forceVisible();
             _fixAttempts++;
             if (_fixAttempts >= _maxAttempts) {
               clearInterval(_fixTimer);
@@ -215,13 +204,11 @@
           }, 50);
         }
 
-        // Запуск при загрузке страницы
+        // Запуск при загрузке
         document.addEventListener('DOMContentLoaded', function () {
-          // Немедленно при загрузке
-          setTimeout(startFix, 100);
+          setTimeout(startFix, 150);
 
-          // MutationObserver — перезапускаем фикс при любом изменении DOM
-          // (переход между вкладками = React монтирует новый компонент)
+          // MutationObserver — при навигации между вкладками
           var navObs = new MutationObserver(function (mutations) {
             for (var i = 0; i < mutations.length; i++) {
               if (mutations[i].addedNodes.length > 0) {
@@ -230,14 +217,11 @@
               }
             }
           });
-
           var root = document.getElementById('root');
-          if (root) {
-            navObs.observe(root, { childList: true, subtree: true });
-          }
+          if (root) navObs.observe(root, { childList: true, subtree: true });
         });
 
-        // SPA navigation — history.pushState / popstate
+        // SPA navigation
         var _origPush = window.history.pushState.bind(window.history);
         window.history.pushState = function () {
           _origPush.apply(window.history, arguments);
