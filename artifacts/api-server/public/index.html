@@ -292,240 +292,78 @@
       })();
     </script>
   
-    <!-- ===== GAMES OVERLAY (auto-inject) ===== -->
-    <div id="tg-games-overlay">
-      <div class="tgo-cards">
 
-        <div class="tgo-card" data-game="Кейсы">
-          <div class="tgo-card-inner">
-            <span class="tgo-badge">🟢 <span class="tgo-live" data-key="cases">17</span> играет</span>
-            <span class="tgo-name">Кейсы</span>
-            <div class="tgo-stars">
-              <span class="tgo-star">⭐</span><span class="tgo-star">⭐</span>
-            </div>
-          </div>
-          <img class="tgo-mascot" src="/assets/cases-mascot-OxOGWDnB.png" alt="Кейсы" />
-        </div>
-
-        <div class="tgo-card" data-game="Краш">
-          <div class="tgo-card-inner">
-            <span class="tgo-badge">🟢 <span class="tgo-live" data-key="crash">134</span> играет</span>
-            <span class="tgo-name">Краш</span>
-            <div class="tgo-stars">
-              <span class="tgo-star">⭐</span><span class="tgo-star">⭐</span><span class="tgo-star">⭐</span>
-            </div>
-          </div>
-          <img class="tgo-mascot" src="/assets/crash-mascot-CRHQgfLy.png" alt="Краш" />
-        </div>
-
-        <div class="tgo-card" data-game="Мини-игры">
-          <div class="tgo-card-inner">
-            <span class="tgo-badge">🟢 <span class="tgo-live" data-key="mini">43</span> играет</span>
-            <span class="tgo-name">Мини-игры</span>
-            <div class="tgo-stars">
-              <span class="tgo-star">⭐</span>
-              <span class="tgo-chat">💬 в чате</span>
-            </div>
-          </div>
-          <img class="tgo-mascot" src="/assets/minigames-mascot-HVbEXSoU.png" alt="Мини-игры" />
-        </div>
-
-      </div>
-    </div>
-
-    <style>
-      #tg-games-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 9990;
-        background: #07070f;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 16px 12px 80px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.38s ease;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      #tg-games-overlay.tgo-visible {
-        opacity: 1;
-        pointer-events: all;
-      }
-      .tgo-cards {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-        max-width: 480px;
-        margin: 0 auto;
-      }
-      .tgo-card {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: linear-gradient(135deg, #12171f 0%, #1a2030 100%);
-        border: 1px solid rgba(255,255,255,0.07);
-        border-radius: 16px;
-        padding: 14px 16px 14px 20px;
-        min-height: 90px;
-        cursor: pointer;
-        overflow: hidden;
-        transition: transform 0.15s ease, background 0.15s ease;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .tgo-card:active {
-        transform: scale(0.97);
-        background: linear-gradient(135deg, #1a2030 0%, #20283a 100%);
-      }
-      .tgo-card-inner {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        flex: 1;
-        z-index: 1;
-      }
-      .tgo-badge {
-        font-size: 11px;
-        font-weight: 600;
-        color: rgba(255,255,255,0.55);
-        letter-spacing: 0.01em;
-      }
-      .tgo-name {
-        font-family: 'Inter', sans-serif;
-        font-size: 22px;
-        font-weight: 700;
-        color: #ffffff;
-        line-height: 1.1;
-      }
-      .tgo-stars {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-top: 2px;
-      }
-      .tgo-star {
+    <!-- ===== AUTO-OPEN GAMES TAB ===== -->
+    <div id="tg-open-btn-wrap" style="
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 8000;
+      display: none;
+    ">
+      <button id="tg-open-games-btn" onclick="openGames()" style="
+        background: linear-gradient(135deg,#1a2540,#263055);
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 30px;
+        color: #fff;
+        font-family: 'Inter',sans-serif;
         font-size: 14px;
-      }
-      .tgo-chat {
-        font-size: 11px;
-        color: rgba(255,255,255,0.45);
-        margin-left: 2px;
-      }
-      .tgo-mascot {
-        width: 88px;
-        height: 88px;
-        object-fit: contain;
-        flex-shrink: 0;
-        margin-left: 8px;
-        filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
-      }
-    </style>
+        font-weight: 700;
+        padding: 12px 28px;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        white-space: nowrap;
+      ">🎮 Открыть игры</button>
+    </div>
 
     <script>
       (function () {
-        var overlay = document.getElementById('tg-games-overlay');
+        var _gamesWin = null;
 
-        // Анимируем счётчики игроков — небольшое случайное дрейфование
-        function driftCounters() {
-          document.querySelectorAll('.tgo-live').forEach(function(el) {
-            var v = parseInt(el.textContent) || 0;
-            var delta = Math.floor(Math.random() * 7) - 3;
-            var min = {'cases':5,'crash':50,'mini':10}[el.dataset.key] || 5;
-            var max = {'cases':60,'crash':300,'mini':120}[el.dataset.key] || 200;
-            el.textContent = Math.min(max, Math.max(min, v + delta));
-          });
-        }
-        setInterval(driftCounters, 4000);
-
-        // Показываем оверлей (вызывается после скрытия splash)
-        function showOverlay() {
-          overlay.classList.add('tgo-visible');
-        }
-
-        // Попытка кликнуть на нужную игру внутри React-приложения
-        function tryNavigateToGame(gameName) {
-          // Сначала убеждаемся что активна вкладка Игры
-          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-          var t;
-          while ((t = walker.nextNode())) {
-            var txt = t.textContent.trim();
-            if (txt === 'Игры' || txt === 'Games') {
-              var node = t.parentElement;
-              for (var i = 0; i < 6; i++) {
-                if (!node || node === document.body) break;
-                var tag = node.tagName;
-                var role = node.getAttribute ? node.getAttribute('role') : null;
-                if (tag === 'BUTTON' || tag === 'A' || role === 'button' || role === 'tab') {
-                  node.click();
-                  break;
-                }
-                node = node.parentElement;
-              }
-              break;
-            }
+        function openGames() {
+          if (_gamesWin && !_gamesWin.closed) {
+            _gamesWin.focus();
+            return;
           }
-
-          // Потом ищем карточку с нужным именем
-          setTimeout(function() {
-            var walker2 = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-            var t2;
-            while ((t2 = walker2.nextNode())) {
-              if (t2.textContent.trim() === gameName) {
-                var node2 = t2.parentElement;
-                for (var j = 0; j < 8; j++) {
-                  if (!node2 || node2 === document.body) break;
-                  if (node2.offsetHeight > 40 && node2.offsetHeight < 250 &&
-                      node2.offsetWidth > 100) {
-                    node2.click();
-                    break;
-                  }
-                  node2 = node2.parentElement;
-                }
-                break;
-              }
-            }
-          }, 350);
+          _gamesWin = window.open('/games.html', 'topgift_games',
+            'width=480,height=700,resizable=yes,scrollbars=yes');
         }
 
-        // Скрываем оверлей и переходим в игру
-        overlay.addEventListener('click', function(e) {
-          var card = e.target.closest('.tgo-card');
-          if (!card) return;
-          var gameName = card.dataset.game;
-          overlay.classList.remove('tgo-visible');
-          setTimeout(function() {
-            overlay.style.display = 'none';
-            tryNavigateToGame(gameName);
-          }, 400);
-        });
+        // Показываем кнопку после монтирования React
+        function showBtn() {
+          var wrap = document.getElementById('tg-open-btn-wrap');
+          if (wrap) wrap.style.display = 'block';
+        }
 
-        // Определяем момент показа — ждём пока React смонтируется
-        var _tgoShown = false;
-        function maybeShow() {
-          if (_tgoShown) return;
+        // Авто-открытие при загрузке страницы
+        window._tgAutoOpened = false;
+        function autoOpen() {
+          if (window._tgAutoOpened) return;
+          window._tgAutoOpened = true;
+          openGames();
+          showBtn();
+        }
+
+        // Ждём монтирования React, затем открываем
+        var _obs = new MutationObserver(function() {
           var root = document.getElementById('root');
           if (root && root.children.length > 0) {
-            _tgoShown = true;
-            showOverlay();
+            _obs.disconnect();
+            setTimeout(autoOpen, 300);
           }
-        }
-
-        var _tgoObs = new MutationObserver(function() { maybeShow(); });
-        document.addEventListener('DOMContentLoaded', function() {
-          _tgoObs.observe(document.getElementById('root') || document.body, { childList: true, subtree: true });
-          // Запасные таймауты
-          setTimeout(maybeShow, 800);
-          setTimeout(maybeShow, 1500);
-          setTimeout(function() {
-            if (!_tgoShown) { _tgoShown = true; showOverlay(); }
-          }, 2500);
         });
+        document.addEventListener('DOMContentLoaded', function() {
+          var root = document.getElementById('root');
+          if (root) _obs.observe(root, { childList: true, subtree: false });
+          setTimeout(autoOpen, 1800);
+        });
+
+        // Глобальная функция для кнопки
+        window.openGames = openGames;
       })();
     </script>
-    <!-- ===== / GAMES OVERLAY ===== -->
+    <!-- ===== / AUTO-OPEN GAMES TAB ===== -->
   
 </body>
 </html>
