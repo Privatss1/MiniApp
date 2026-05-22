@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <!-- Запрет кэширования — Telegram WebApp иногда агрессивно кэширует HTML -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -30,43 +29,14 @@
       }
     </script>
 
-    <!--
-      FIX #1: matchMedia override — сообщаем Framer Motion что prefers-reduced-motion,
-      тогда он мгновенно применяет конечный animate-state (opacity:1, y:0).
-      Этот скрипт ОБЯЗАН быть до загрузки React-бандла.
-    -->
-    <script>
-      (function () {
-        var _orig = window.matchMedia ? window.matchMedia.bind(window) : null;
-        window.matchMedia = function (query) {
-          if (typeof query === 'string' && query.indexOf('prefers-reduced-motion') !== -1) {
-            return {
-              matches: true, media: query, onchange: null,
-              addListener: function () {}, removeListener: function () {},
-              addEventListener: function () {}, removeEventListener: function () {},
-              dispatchEvent: function () { return false; }
-            };
-          }
-          return _orig
-            ? _orig(query)
-            : { matches: false, media: query, onchange: null,
-                addListener: function(){}, removeListener: function(){},
-                addEventListener: function(){}, removeEventListener: function(){},
-                dispatchEvent: function(){ return false; } };
-        };
-      })();
-    </script>
-
     <script type="module" crossorigin src="/assets/index-DI6LDH42.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C1GP4BNZ.css">
 
     <style>
-      /* 1. Скрыть TON-пилюлю в правом верхнем углу */
-      div.glass:has(img[alt="TON"]) {
-        display: none !important;
-      }
+      /* Скрыть TON-пилюлю */
+      div.glass:has(img[alt="TON"]) { display: none !important; }
 
-      /* 2. Логотип — premium градиентный текст */
+      /* Логотип — premium градиентный текст */
       #tg-logo-text {
         font-family: 'Playfair Display', serif !important;
         font-weight: 700 !important;
@@ -77,7 +47,7 @@
         background-clip: text !important;
       }
 
-      /* 3. Новый логотип-изображение */
+      /* Новый логотип-изображение */
       #tg-new-logo {
         height: 28px;
         width: auto;
@@ -87,7 +57,7 @@
         filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.4));
       }
 
-      /* 4. Онлайн-счётчик */
+      /* Онлайн-счётчик */
       .tg-online-counter {
         display: inline-flex;
         align-items: center;
@@ -114,7 +84,7 @@
         50%       { opacity: 0.6; transform: scale(1.4); }
       }
 
-      /* 5. Игровые карточки — тёмный фон, рамка, тень */
+      /* Игровые карточки */
       .rounded-\[22px\].h-\[172px\] {
         background: #0d0d20 !important;
         border-color: rgba(255, 255, 255, 0.22) !important;
@@ -124,38 +94,7 @@
           0 0 0 1px rgba(255, 255, 255, 0.04) !important;
       }
 
-      /*
-       * FIX CSS: !important в авторских стилях стоит ВЫШЕ WAAPI-анимаций
-       * в каскаде (Author !important > CSS Animations > Inline styles).
-       * Это принудительно делает карточки и контейнер видимыми,
-       * перекрывая Framer Motion-анимации на opacity:0 + translateY.
-       */
-
-      /* Контейнер игровой страницы */
-      [class*="space-y-5"][class*="p-4"] {
-        opacity: 1 !important;
-      }
-      [class*="space-y-5"][class*="p-4"] > * {
-        opacity: 1 !important;
-        transform: none !important;
-      }
-
-      /* Сами карточки h-[172px] и их прямые дети */
-      [class*="h-\[172px\]"] {
-        opacity: 1 !important;
-        transform: none !important;
-      }
-      [class*="h-\[172px\]"] > * {
-        opacity: 1 !important;
-      }
-
-      /* 6. Горизонтальные отступы для списка карточек */
-      .space-y-4:has(.h-\[172px\]) {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-      }
-
-      /* 7. Нижний навбар — сплошной чёрный */
+      /* Нижний навбар */
       nav {
         background: rgba(5, 5, 12, 0.99) !important;
         backdrop-filter: none !important;
@@ -165,72 +104,73 @@
         border-right-color: rgba(255, 255, 255, 0.06) !important;
       }
 
-      /*
-       * NUCLEAR FIX: Все дочерние элементы #root делаем видимыми.
-       * Author !important > CSS Animations (WAAPI) > Inline styles — W3C стандарт.
-       * Это гарантированно перекрывает Framer Motion независимо от версии.
-       * Splash (#tg-splash) находится вне #root — не затрагивается.
-       */
-      #root * {
-        opacity: 1 !important;
+      /* Splash */
+      #tg-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #07070f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+        transition: opacity 0.55s ease;
+        pointer-events: all;
       }
-
-      /*
-       * Разрешаем навбару своё поведение (он внутри #root),
-       * и онлайн-пульсу тоже нужна своя анимация.
-       */
-      nav { opacity: 1 !important; }
-      .tg-online-counter::before { opacity: 1; } /* переопределяем для пульса */
+      #tg-splash.tg-splash-hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #tg-splash img {
+        width: 220px;
+        max-width: 70vw;
+        object-fit: contain;
+        animation: tg-splash-in 0.5s ease both;
+      }
+      @keyframes tg-splash-in {
+        from { opacity: 0; transform: scale(0.88); }
+        to   { opacity: 1; transform: scale(1); }
+      }
     </style>
 
     <!--
-      FIX #2: WAAPI-aware фикс для Framer Motion v12+.
-      FM v12 использует Web Animations API (getAnimations()), а НЕ inline styles.
-      Поэтому el.style.opacity пуст, а анимация управляется через WAAPI.
-      anim.finish() прыгает в конечное состояние (opacity:1).
-      FM использует fill:'both' — конечное состояние сохраняется.
-      Дополнительно: inline opacity:0 и CSS-переменные --motion-opacity.
+      WAAPI-фикс для Framer Motion v12+: finish() переводит анимацию в конечное состояние.
+      Запускается с паузами, отключается как только все элементы видимы.
+      НЕ затрагивает nav и псевдоэлементы (::before, ::after) — их анимации сохранены.
     -->
     <script>
       (function () {
         var _fixTimer = null;
         var _fixAttempts = 0;
-        var _maxAttempts = 100; // 5 секунд по 50ms
+        var _maxAttempts = 40;
 
         function forceVisible() {
           var root = document.getElementById('root');
           if (!root) return;
 
           var all = root.querySelectorAll('*');
+          var anyFixed = false;
           for (var k = 0; k < all.length; k++) {
             var el = all[k];
-            // Пропускаем nav и splash — у них opacity intentional
             if (el.tagName === 'NAV') continue;
-            if (el.id === 'tg-splash') continue;
 
             try {
-              // Метод 1: computed opacity — ловит и WAAPI и inline styles
               var cs = window.getComputedStyle(el);
               var op = parseFloat(cs.opacity);
               if (op < 0.05) {
-                // Завершаем все WAAPI-анимации (FM v12) → прыжок в opacity:1
                 if (el.getAnimations) {
                   var anims = el.getAnimations();
                   for (var a = 0; a < anims.length; a++) {
                     try { anims[a].finish(); } catch (e2) {}
                   }
                 }
-                // Страховочный inline-style
                 el.style.setProperty('opacity', '1', 'important');
                 el.style.setProperty('transform', 'none', 'important');
-
-                // CSS-переменные FM (некоторые версии)
-                try {
-                  el.style.setProperty('--motion-opacity', '1', 'important');
-                } catch (e3) {}
+                anyFixed = true;
               }
             } catch (e) {}
           }
+          return anyFixed;
         }
 
         function startFix() {
@@ -243,14 +183,12 @@
               clearInterval(_fixTimer);
               _fixTimer = null;
             }
-          }, 50);
+          }, 100);
         }
 
-        // Запуск при загрузке
         document.addEventListener('DOMContentLoaded', function () {
           setTimeout(startFix, 150);
 
-          // MutationObserver — при навигации между вкладками
           var navObs = new MutationObserver(function (mutations) {
             for (var i = 0; i < mutations.length; i++) {
               if (mutations[i].addedNodes.length > 0) {
@@ -260,10 +198,9 @@
             }
           });
           var root = document.getElementById('root');
-          if (root) navObs.observe(root, { childList: true, subtree: true });
+          if (root) navObs.observe(root, { childList: true, subtree: false });
         });
 
-        // SPA navigation
         var _origPush = window.history.pushState.bind(window.history);
         window.history.pushState = function () {
           _origPush.apply(window.history, arguments);
@@ -275,7 +212,7 @@
       })();
     </script>
 
-    <!-- DOM-патчи: логотип и онлайн-счётчик -->
+    <!-- Логотип и онлайн-счётчик -->
     <script>
       (function () {
         var _cachedCount = 1247;
@@ -297,6 +234,7 @@
         var plusDone = false;
         var logoDone = false;
         var logoBadgeDone = false;
+        var _onlineInterval = null;
 
         function patchLogoImage() {
           if (logoBadgeDone) return;
@@ -353,8 +291,6 @@
           return null;
         }
 
-        var _onlineInterval = null;
-
         function patchPlus() {
           if (plusDone) return;
           if (document.querySelector('.tg-online-counter')) { plusDone = true; return; }
@@ -394,47 +330,53 @@
         });
       })();
     </script>
-
-    <style>
-      #tg-splash {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        background: #07070f;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 1;
-        transition: opacity 0.55s ease;
-        pointer-events: all;
-      }
-      #tg-splash.tg-splash-hide {
-        opacity: 0;
-        pointer-events: none;
-      }
-      #tg-splash img {
-        width: 220px;
-        max-width: 70vw;
-        object-fit: contain;
-        animation: tg-splash-in 0.5s ease both;
-      }
-      @keyframes tg-splash-in {
-        from { opacity: 0; transform: scale(0.88); }
-        to   { opacity: 1; transform: scale(1); }
-      }
-    </style>
   </head>
   <body>
     <div id="tg-splash">
       <img src="/assets/topgift-splash-logo-nobg.png" alt="TopGift" />
     </div>
     <div id="root"></div>
+
     <script>
       (function () {
         var splash = document.getElementById('tg-splash');
+
+        function tryClickGames() {
+          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+          var t;
+          while ((t = walker.nextNode())) {
+            var text = t.textContent.trim();
+            if (text === 'Игры' || text === 'Games') {
+              var node = t.parentElement;
+              for (var i = 0; i < 6; i++) {
+                if (!node || node === document.body) break;
+                var tag = node.tagName;
+                var role = node.getAttribute ? node.getAttribute('role') : null;
+                if (tag === 'BUTTON' || tag === 'A' || role === 'button' || role === 'tab') {
+                  node.click();
+                  return true;
+                }
+                if (node.offsetHeight > 30 && node.offsetHeight < 90) {
+                  node.click();
+                  return true;
+                }
+                node = node.parentElement;
+              }
+            }
+          }
+          return false;
+        }
+
         setTimeout(function () {
           splash.classList.add('tg-splash-hide');
-          setTimeout(function () { splash.remove(); }, 600);
+          setTimeout(function () {
+            splash.remove();
+            if (!tryClickGames()) {
+              setTimeout(tryClickGames, 200);
+              setTimeout(tryClickGames, 500);
+              setTimeout(tryClickGames, 900);
+            }
+          }, 600);
         }, 1400);
       })();
     </script>
