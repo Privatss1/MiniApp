@@ -84,16 +84,6 @@
         50%       { opacity: 0.6; transform: scale(1.4); }
       }
 
-      /* Игровые карточки */
-      .rounded-\[22px\].h-\[172px\] {
-        background: #0d0d20 !important;
-        border-color: rgba(255, 255, 255, 0.22) !important;
-        box-shadow:
-          0 2px 28px rgba(0, 0, 0, 0.85),
-          inset 0 1px 0 rgba(255, 255, 255, 0.07),
-          0 0 0 1px rgba(255, 255, 255, 0.04) !important;
-      }
-
       /* Нижний навбар */
       nav {
         background: rgba(5, 5, 12, 0.99) !important;
@@ -133,89 +123,11 @@
       }
     </style>
 
-    <!--
-      WAAPI-фикс для Framer Motion v12+: finish() переводит анимацию в конечное состояние.
-      Запускается с паузами, отключается как только все элементы видимы.
-      НЕ затрагивает nav и псевдоэлементы (::before, ::after) — их анимации сохранены.
-    -->
-    <script>
-      (function () {
-        var _fixTimer = null;
-        var _fixAttempts = 0;
-        var _maxAttempts = 40;
-
-        function forceVisible() {
-          var root = document.getElementById('root');
-          if (!root) return;
-
-          var all = root.querySelectorAll('*');
-          var anyFixed = false;
-          for (var k = 0; k < all.length; k++) {
-            var el = all[k];
-            if (el.tagName === 'NAV') continue;
-
-            try {
-              var cs = window.getComputedStyle(el);
-              var op = parseFloat(cs.opacity);
-              if (op < 0.05) {
-                if (el.getAnimations) {
-                  var anims = el.getAnimations();
-                  for (var a = 0; a < anims.length; a++) {
-                    try { anims[a].finish(); } catch (e2) {}
-                  }
-                }
-                el.style.setProperty('opacity', '1', 'important');
-                el.style.setProperty('transform', 'none', 'important');
-                anyFixed = true;
-              }
-            } catch (e) {}
-          }
-          return anyFixed;
-        }
-
-        function startFix() {
-          _fixAttempts = 0;
-          if (_fixTimer) clearInterval(_fixTimer);
-          _fixTimer = setInterval(function () {
-            forceVisible();
-            _fixAttempts++;
-            if (_fixAttempts >= _maxAttempts) {
-              clearInterval(_fixTimer);
-              _fixTimer = null;
-            }
-          }, 100);
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-          setTimeout(startFix, 150);
-
-          var navObs = new MutationObserver(function (mutations) {
-            for (var i = 0; i < mutations.length; i++) {
-              if (mutations[i].addedNodes.length > 0) {
-                startFix();
-                break;
-              }
-            }
-          });
-          var root = document.getElementById('root');
-          if (root) navObs.observe(root, { childList: true, subtree: false });
-        });
-
-        var _origPush = window.history.pushState.bind(window.history);
-        window.history.pushState = function () {
-          _origPush.apply(window.history, arguments);
-          setTimeout(startFix, 50);
-        };
-        window.addEventListener('popstate', function () {
-          setTimeout(startFix, 50);
-        });
-      })();
-    </script>
-
     <!-- Логотип и онлайн-счётчик -->
     <script>
       (function () {
         var _cachedCount = 1247;
+        var _onlineInterval = null;
 
         function fmtOnline(n) {
           return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
@@ -234,7 +146,6 @@
         var plusDone = false;
         var logoDone = false;
         var logoBadgeDone = false;
-        var _onlineInterval = null;
 
         function patchLogoImage() {
           if (logoBadgeDone) return;
