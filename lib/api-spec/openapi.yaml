@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: stats
+    description: Statistics operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /stats/online:
+    get:
+      operationId: getOnlineCount
+      tags: [stats]
+      summary: Online users count
+      description: Returns the current number of online users
+      responses:
+        "200":
+          description: Online count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnlineCount"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +48,11 @@ components:
           type: string
       required:
         - status
-
+    OnlineCount:
+      type: object
+      properties:
+        count:
+          type: integer
+          minimum: 0
+      required:
+        - count
