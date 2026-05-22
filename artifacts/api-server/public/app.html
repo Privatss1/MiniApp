@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>TopGift MiniApp</title>
+    <meta name="description" content="TopGift — дарите подарки в Telegram" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="TopGift" />
+    <meta property="og:description" content="TopGift — дарите подарки в Telegram" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TopGift" />
+    <meta name="twitter:description" content="TopGift — дарите подарки в Telegram" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+      if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-DI6LDH42.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C1GP4BNZ.css">
+    <!-- Custom overrides — loaded AFTER compiled CSS to win cascade -->
+    <style>
+      /* 1. Hide only the top-right TON pill (it uniquely has class "glass") */
+      div.glass:has(img[alt="TON"]) {
+        display: none !important;
+      }
+
+      /* 2. Premium logo text style */
+      #tg-logo-text {
+        font-family: 'Playfair Display', serif !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.04em !important;
+        background: linear-gradient(135deg, #ffffff 0%, #e8d5a3 50%, #c9a84c 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+      }
+
+      /* 3. New logo image replacing the mascot component */
+      #tg-new-logo {
+        height: 28px;
+        width: auto;
+        max-width: 140px;
+        object-fit: contain;
+        display: block;
+        filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.4));
+      }
+
+      /* 4. Online counter */
+      .tg-online-counter {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #4ade80;
+        margin-left: 6px;
+        white-space: nowrap;
+      }
+      .tg-online-counter::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        min-width: 6px;
+        border-radius: 50%;
+        background: #4ade80;
+        box-shadow: 0 0 6px #4ade80;
+        animation: tg-pulse 2s infinite;
+      }
+      @keyframes tg-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.4); }
+      }
+    </style>
+    <script>
+      (function () {
+        var _cachedCount = 1247;
+        function fmtOnline(n) {
+          return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
+        }
+        function fetchOnline(cb) {
+          fetch('/api/stats/online')
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d && typeof d.count === 'number') { _cachedCount = d.count; } cb(_cachedCount); })
+            .catch(function() { cb(_cachedCount); });
+        }
+
+        let plusDone = false;
+        let logoDone = false;
+        let logoBadgeDone = false;
+
+        function patchLogoImage() {
+          if (logoBadgeDone) return;
+          const candidates = document.querySelectorAll('div.absolute.select-none');
+          for (const el of candidates) {
+            const cls = el.className || '';
+            if (!cls.includes('left-1/2') && !cls.includes('translate-x')) continue;
+            if (el.querySelector('#tg-new-logo')) { logoBadgeDone = true; return; }
+            const img = document.createElement('img');
+            img.id = 'tg-new-logo';
+            img.src = '/assets/topgift-splash-logo-nobg.png';
+            img.alt = 'TopGift';
+            logoDone = true;
+            el.innerHTML = '';
+            el.appendChild(img);
+            el.style.filter = 'none';
+            logoBadgeDone = true;
+            break;
+          }
+        }
+
+        function patchLogoText() {
+          if (logoDone) return;
+          const all = document.querySelectorAll('*');
+          for (const el of all) {
+            if (
+              el.childNodes.length === 1 &&
+              el.childNodes[0].nodeType === 3 &&
+              el.textContent.trim() === 'TopGift' &&
+              !el.id
+            ) {
+              el.id = 'tg-logo-text';
+              logoDone = true;
+              break;
+            }
+          }
+        }
+
+        function findPlusBtn() {
+          const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+          let t;
+          while ((t = walker.nextNode())) {
+            if (t.textContent.trim() !== '+') continue;
+            let node = t.parentElement;
+            for (let i = 0; i < 6; i++) {
+              if (!node) break;
+              const w = node.offsetWidth, h = node.offsetHeight;
+              if (w > 10 && w < 50 && h > 10 && h < 50 && Math.abs(w - h) < 12) return node;
+              node = node.parentElement;
+            }
+          }
+          return null;
+        }
+
+        function patchPlus() {
+          if (plusDone) return;
+          if (document.querySelector('.tg-online-counter')) { plusDone = true; return; }
+          const btn = findPlusBtn();
+          if (!btn || btn.dataset.tgPlusPatched) return;
+          btn.dataset.tgPlusPatched = '1';
+          btn.style.cssText += ';background:rgba(255,255,255,0.12)!important;border:1.5px solid rgba(255,255,255,0.28)!important;color:#fff!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;border-radius:50%!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:14px!important;box-shadow:none!important;padding:0!important;';
+          const counter = document.createElement('span');
+          counter.className = 'tg-online-counter';
+          fetchOnline(function(n) {
+            counter.textContent = fmtOnline(n);
+            setInterval(function() {
+              fetchOnline(function(n2) { counter.textContent = fmtOnline(n2); });
+            }, 10000);
+          });
+          if (btn.parentNode) btn.parentNode.insertBefore(counter, btn.nextSibling);
+          plusDone = true;
+        }
+
+        function runAll() {
+          patchLogoText();
+          patchLogoImage();
+          patchPlus();
+        }
+
+        const obs = new MutationObserver(() => {
+          runAll();
+          if (plusDone && logoDone && logoBadgeDone) obs.disconnect();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+          obs.observe(document.body, { childList: true, subtree: true });
+          setTimeout(runAll, 400);
+          setTimeout(runAll, 1200);
+          setTimeout(runAll, 2500);
+        });
+      })();
+    </script>
+    <style>
+      #tg-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #07070f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+        transition: opacity 0.55s ease;
+        pointer-events: all;
+      }
+      #tg-splash.tg-splash-hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #tg-splash img {
+        width: 220px;
+        max-width: 70vw;
+        object-fit: contain;
+        animation: tg-splash-in 0.5s ease both;
+      }
+      @keyframes tg-splash-in {
+        from { opacity: 0; transform: scale(0.88); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="tg-splash">
+      <img src="/assets/topgift-splash-logo-nobg.png" alt="TopGift" />
+    </div>
+    <div id="root"></div>
+    <script>
+      (function () {
+        var splash = document.getElementById('tg-splash');
+        // Start fade-out after 1.4s, then remove from DOM
+        setTimeout(function () {
+          splash.classList.add('tg-splash-hide');
+          setTimeout(function () {
+            splash.remove();
+          }, 600);
+        }, 1400);
+      })();
+    </script>
+  </body>
+</html>
