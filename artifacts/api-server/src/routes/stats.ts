@@ -22,7 +22,7 @@ function driftOnline() {
 
 router.get("/online", (_req, res) => {
   driftOnline();
-  res.json({ count: simulatedOnline, simulated: true });
+  res.json({ count: simulatedOnline });
 });
 
 export default router;
