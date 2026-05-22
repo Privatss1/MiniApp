@@ -91,15 +91,11 @@
           0 0 0 1px rgba(255, 255, 255, 0.04) !important;
       }
 
-      /* Список карточек — отступы по бокам как на скрине */
-      .space-y-4 {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-      }
-
-      /* Убираем вертикальный скролл страницы чтобы карточки не "плавали" */
-      main.flex-1 {
-        background: #000 !important;
+      /* Список карточек — сами карточки в чёрном прямоугольнике-обёртке */
+      .space-y-4:has(.h-\[172px\]) {
+        background: #080810;
+        border-radius: 20px;
+        padding: 12px !important;
       }
     </style>
     <script>
