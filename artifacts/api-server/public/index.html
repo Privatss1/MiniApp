@@ -1,295 +1,275 @@
 <!DOCTYPE html>
-<html lang="en">
+  <html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <title>TopGift MiniApp</title>
-    <meta name="description" content="TopGift — дарите подарки в Telegram" />
-    <meta name="robots" content="index, follow" />
-    <meta property="og:title" content="TopGift" />
-    <meta property="og:description" content="TopGift — дарите подарки в Telegram" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="TopGift" />
-    <meta name="twitter:description" content="TopGift — дарите подарки в Telegram" />
+    <title>TopGift</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
       if (window.Telegram && window.Telegram.WebApp) {
-        var tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
       }
     </script>
-
-    <script type="module" crossorigin src="/assets/index-DI6LDH42.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-C1GP4BNZ.css">
-
     <style>
-      /* Скрыть TON-пилюлю */
-      div.glass:has(img[alt="TON"]) { display: none !important; }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      /* Логотип — premium градиентный текст */
-      #tg-logo-text {
-        font-family: 'Playfair Display', serif !important;
-        font-weight: 700 !important;
-        letter-spacing: 0.04em !important;
-        background: linear-gradient(135deg, #ffffff 0%, #e8d5a3 50%, #c9a84c 100%) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
+      html, body {
+        width: 100%;
+        height: 100%;
+        background: #07070f;
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
       }
 
-      /* Новый логотип-изображение */
-      #tg-new-logo {
-        height: 28px;
-        width: auto;
-        max-width: 140px;
-        object-fit: contain;
-        display: block;
-        filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.4));
+      /* ---- Попап ---- */
+      #popup {
+        position: fixed;
+        /* Центрируем по горизонтали, по вертикали — ближе к середине */
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -46%) scale(0.94);
+        width: min(92vw, 420px);
+        background: #0d0d1a;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.34, 1.4, 0.64, 1);
+        z-index: 100;
+      }
+      #popup.show {
+        opacity: 1;
+        pointer-events: all;
+        transform: translate(-50%, -50%) scale(1);
       }
 
-      /* Онлайн-счётчик */
-      .tg-online-counter {
+      /* Шапка попапа */
+      .popup-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 18px 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+      .popup-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.01em;
+      }
+
+      /* Список карточек */
+      .popup-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      /* Карточка игры — точно по скриншоту */
+      .game-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0 16px 18px;
+        background: transparent;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        cursor: pointer;
+        overflow: hidden;
+        position: relative;
+        min-height: 105px;
+        transition: background 0.12s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .game-card:last-child { border-bottom: none; }
+      .game-card:active { background: rgba(255,255,255,0.04); }
+
+      .game-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* Зелёный бейдж "N играют" */
+      .game-badge {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        font-size: 12px;
+        gap: 5px;
+        background: rgba(74,222,128,0.13);
+        border: 1px solid rgba(74,222,128,0.22);
+        border-radius: 30px;
+        padding: 3px 9px 3px 6px;
+        width: fit-content;
+        font-size: 11px;
         font-weight: 600;
         color: #4ade80;
-        margin-left: 6px;
-        white-space: nowrap;
       }
-      .tg-online-counter::before {
-        content: '';
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        min-width: 6px;
-        border-radius: 50%;
+      .badge-dot {
+        width: 6px; height: 6px;
         background: #4ade80;
-        box-shadow: 0 0 6px #4ade80;
-        animation: tg-pulse 2s infinite;
+        border-radius: 50%;
+        box-shadow: 0 0 5px #4ade80;
+        flex-shrink: 0;
       }
-      @keyframes tg-pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50%       { opacity: 0.6; transform: scale(1.4); }
+      .badge-cnt { transition: content 0.3s; }
+
+      /* Название игры */
+      .game-name {
+        font-size: 27px;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+        letter-spacing: -0.03em;
       }
 
-      /* Нижний навбар */
-      nav {
-        background: rgba(5, 5, 12, 0.99) !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        border-top-color: rgba(255, 255, 255, 0.06) !important;
-        border-left-color: rgba(255, 255, 255, 0.06) !important;
-        border-right-color: rgba(255, 255, 255, 0.06) !important;
+      /* Иконки-пиллы */
+      .game-icons {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 1px;
+      }
+      .ico {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px; height: 24px;
+        border-radius: 7px;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .ico-ton  { background: rgba(83,131,254,0.22); color: #5383fe; font-size: 11px; }
+      .ico-star { background: rgba(255,193,7,0.20);  color: #ffc107; }
+      .ico-gift { background: rgba(255,255,255,0.09); font-size: 13px; }
+      .chat-pill {
+        background: rgba(255,255,255,0.09);
+        border-radius: 7px;
+        padding: 4px 8px;
+        font-size: 10px;
+        font-weight: 700;
+        color: rgba(255,255,255,0.55);
+        letter-spacing: 0.05em;
       }
 
-      /* Splash */
-      #tg-splash {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        background: #07070f;
+      /* Маскот */
+      .game-mascot {
+        width: 115px;
+        height: 105px;
+        object-fit: contain;
+        object-position: right center;
+        flex-shrink: 0;
+        filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));
+      }
+      .game-mascot-emoji {
+        width: 115px;
+        height: 105px;
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 1;
-        transition: opacity 0.55s ease;
-        pointer-events: all;
-      }
-      #tg-splash.tg-splash-hide {
-        opacity: 0;
-        pointer-events: none;
-      }
-      #tg-splash img {
-        width: 220px;
-        max-width: 70vw;
-        object-fit: contain;
-        animation: tg-splash-in 0.5s ease both;
-      }
-      @keyframes tg-splash-in {
-        from { opacity: 0; transform: scale(0.88); }
-        to   { opacity: 1; transform: scale(1); }
+        font-size: 52px;
+        flex-shrink: 0;
       }
     </style>
-
-    <!-- Логотип и онлайн-счётчик -->
-    <script>
-      (function () {
-        var _cachedCount = 1247;
-        var _onlineInterval = null;
-
-        function fmtOnline(n) {
-          return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
-        }
-
-        function fetchOnline(cb) {
-          fetch('/api/stats/online')
-            .then(function (r) { return r.json(); })
-            .then(function (d) {
-              if (d && typeof d.count === 'number') { _cachedCount = d.count; }
-              cb(_cachedCount);
-            })
-            .catch(function () { cb(_cachedCount); });
-        }
-
-        var plusDone = false;
-        var logoDone = false;
-        var logoBadgeDone = false;
-
-        function patchLogoImage() {
-          if (logoBadgeDone) return;
-          var candidates = document.querySelectorAll('div.absolute.select-none');
-          for (var i = 0; i < candidates.length; i++) {
-            var el = candidates[i];
-            var cls = el.className || '';
-            if (cls.indexOf('left-1/2') === -1 && cls.indexOf('translate-x') === -1) continue;
-            if (el.querySelector('#tg-new-logo')) { logoBadgeDone = true; return; }
-            var img = document.createElement('img');
-            img.id = 'tg-new-logo';
-            img.src = '/assets/topgift-splash-logo-nobg.png';
-            img.alt = 'TopGift';
-            logoDone = true;
-            el.innerHTML = '';
-            el.appendChild(img);
-            el.style.filter = 'none';
-            logoBadgeDone = true;
-            break;
-          }
-        }
-
-        function patchLogoText() {
-          if (logoDone) return;
-          var all = document.querySelectorAll('*');
-          for (var i = 0; i < all.length; i++) {
-            var el = all[i];
-            if (
-              el.childNodes.length === 1 &&
-              el.childNodes[0].nodeType === 3 &&
-              el.textContent.trim() === 'TopGift' &&
-              !el.id
-            ) {
-              el.id = 'tg-logo-text';
-              logoDone = true;
-              break;
-            }
-          }
-        }
-
-        function findPlusBtn() {
-          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-          var t;
-          while ((t = walker.nextNode())) {
-            if (t.textContent.trim() !== '+') continue;
-            var node = t.parentElement;
-            for (var i = 0; i < 6; i++) {
-              if (!node) break;
-              var w = node.offsetWidth, h = node.offsetHeight;
-              if (w > 10 && w < 50 && h > 10 && h < 50 && Math.abs(w - h) < 12) return node;
-              node = node.parentElement;
-            }
-          }
-          return null;
-        }
-
-        function patchPlus() {
-          if (plusDone) return;
-          if (document.querySelector('.tg-online-counter')) { plusDone = true; return; }
-          var btn = findPlusBtn();
-          if (!btn || btn.dataset.tgPlusPatched) return;
-          btn.dataset.tgPlusPatched = '1';
-          btn.style.cssText += ';background:rgba(255,255,255,0.12)!important;border:1.5px solid rgba(255,255,255,0.28)!important;color:#fff!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;border-radius:50%!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:14px!important;box-shadow:none!important;padding:0!important;';
-          var counter = document.createElement('span');
-          counter.className = 'tg-online-counter';
-          fetchOnline(function (n) {
-            counter.textContent = fmtOnline(n);
-            if (_onlineInterval) clearInterval(_onlineInterval);
-            _onlineInterval = setInterval(function () {
-              fetchOnline(function (n2) { counter.textContent = fmtOnline(n2); });
-            }, 10000);
-          });
-          if (btn.parentNode) btn.parentNode.insertBefore(counter, btn.nextSibling);
-          plusDone = true;
-        }
-
-        function runAll() {
-          patchLogoText();
-          patchLogoImage();
-          patchPlus();
-        }
-
-        var obs = new MutationObserver(function () {
-          runAll();
-          if (plusDone && logoDone && logoBadgeDone) obs.disconnect();
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-          obs.observe(document.body, { childList: true, subtree: true });
-          setTimeout(runAll, 400);
-          setTimeout(runAll, 1200);
-          setTimeout(runAll, 2500);
-        });
-      })();
-    </script>
   </head>
   <body>
-    <div id="tg-splash">
-      <img src="/assets/topgift-splash-logo-nobg.png" alt="TopGift" />
+
+    <div id="popup">
+      <div class="popup-header">
+        <span class="popup-title">🎮 Игры</span>
+      </div>
+
+      <div class="popup-list">
+
+        <!-- Кейсы -->
+        <div class="game-card" data-game="Кейсы">
+          <div class="game-info">
+            <span class="game-badge">
+              <span class="badge-dot"></span>
+              <span class="badge-cnt" data-base="17">17</span>&nbsp;играют
+            </span>
+            <span class="game-name">Кейсы</span>
+            <div class="game-icons">
+              <span class="ico ico-ton">▽</span>
+              <span class="ico ico-star">★</span>
+            </div>
+          </div>
+          <img class="game-mascot" src="/assets/cases-mascot-OxOGWDnB.png" alt="Кейсы"
+               onerror="this.outerHTML='<div class=game-mascot-emoji>🎁</div>'" />
+        </div>
+
+        <!-- Краш -->
+        <div class="game-card" data-game="Краш">
+          <div class="game-info">
+            <span class="game-badge">
+              <span class="badge-dot"></span>
+              <span class="badge-cnt" data-base="124">124</span>&nbsp;играют
+            </span>
+            <span class="game-name">Краш</span>
+            <div class="game-icons">
+              <span class="ico ico-gift">🎁</span>
+              <span class="ico ico-ton">▽</span>
+              <span class="ico ico-star">★</span>
+            </div>
+          </div>
+          <img class="game-mascot" src="/assets/crash-mascot-CRHQgfLy.png" alt="Краш"
+               onerror="this.outerHTML='<div class=game-mascot-emoji>💥</div>'" />
+        </div>
+
+        <!-- Мини-игры -->
+        <div class="game-card" data-game="Мини-игры">
+          <div class="game-info">
+            <span class="game-badge">
+              <span class="badge-dot"></span>
+              <span class="badge-cnt" data-base="43">43</span>&nbsp;играют
+            </span>
+            <span class="game-name">Мини-игры</span>
+            <div class="game-icons">
+              <span class="ico ico-star">★</span>
+              <span class="ico ico-ton">▽</span>
+              <span class="chat-pill">В ЧАТЕ</span>
+            </div>
+          </div>
+          <img class="game-mascot" src="/assets/minigames-mascot-HVbEXSoU.png" alt="Мини-игры"
+               onerror="this.outerHTML='<div class=game-mascot-emoji>🕹️</div>'" />
+        </div>
+
+      </div>
     </div>
-    <div id="root"></div>
 
     <script>
-      (function () {
-        var splash = document.getElementById('tg-splash');
+      var popup = document.getElementById('popup');
 
-        function tryClickGames() {
-          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-          var t;
-          while ((t = walker.nextNode())) {
-            var text = t.textContent.trim();
-            if (text === 'Игры' || text === 'Games') {
-              var node = t.parentElement;
-              for (var i = 0; i < 6; i++) {
-                if (!node || node === document.body) break;
-                var tag = node.tagName;
-                var role = node.getAttribute ? node.getAttribute('role') : null;
-                if (tag === 'BUTTON' || tag === 'A' || role === 'button' || role === 'tab') {
-                  node.click();
-                  return true;
-                }
-                if (node.offsetHeight > 30 && node.offsetHeight < 90) {
-                  node.click();
-                  return true;
-                }
-                node = node.parentElement;
-              }
-            }
-          }
-          return false;
-        }
+      // Показ попапа
+      setTimeout(function () {
+        popup.classList.add('show');
+      }, 300);
 
-        setTimeout(function () {
-          splash.classList.add('tg-splash-hide');
-          setTimeout(function () {
-            splash.remove();
-            if (!tryClickGames()) {
-              setTimeout(tryClickGames, 200);
-              setTimeout(tryClickGames, 500);
-              setTimeout(tryClickGames, 900);
-            }
-          }, 600);
-        }, 1400);
-      })();
+      // Клик по карточке
+      popup.addEventListener('click', function (e) {
+        var card = e.target.closest('.game-card');
+        if (!card) return;
+        console.log('[TopGift] Выбрана игра:', card.dataset.game);
+        // TODO: здесь будет переход в игру
+      });
+
+      // Анимация счётчиков онлайна
+      setInterval(function () {
+        document.querySelectorAll('.badge-cnt').forEach(function (el) {
+          var base = parseInt(el.dataset.base) || 10;
+          var cur  = parseInt(el.textContent) || base;
+          var next = Math.max(1, cur + Math.floor(Math.random() * 7) - 3);
+          el.textContent = next;
+        });
+      }, 4000);
     </script>
-</body>
-</html>
+  </body>
+  </html>
