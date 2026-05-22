@@ -292,269 +292,207 @@
       })();
     </script>
 
-    <!-- ===== GAMES PANEL v3 ===== -->
-    <div id="tgp-overlay" aria-hidden="true">
-      <div id="tgp-panel">
-        <div class="tgp-list">
-
-          <div class="tgp-card" data-game="Кейсы">
-            <div class="tgp-info">
-              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="17">17</span> играют</span>
-              <span class="tgp-name">Кейсы</span>
-              <div class="tgp-stars">
-                <span class="tgp-ico tgp-ico-ton">▽</span>
-                <span class="tgp-ico tgp-ico-star">★</span>
-              </div>
-            </div>
-            <img class="tgp-mascot" src="/assets/cases-mascot-OxOGWDnB.png" alt="Кейсы"
-                 onerror="this.style.display='none'" />
+    <!-- ===== GAMES AUTO PANEL ===== -->
+    <div id="tgap-box">
+      <div class="tgap-card" data-game="Кейсы">
+        <div class="tgap-info">
+          <span class="tgap-badge"><span class="tgap-dot"></span><span class="tgap-cnt" data-base="17">17</span> играют</span>
+          <span class="tgap-name">Кейсы</span>
+          <div class="tgap-icons">
+            <span class="tgap-ico tgap-ico-ton">▽</span>
+            <span class="tgap-ico tgap-ico-star">★</span>
           </div>
-
-          <div class="tgp-card" data-game="Краш">
-            <div class="tgp-info">
-              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="124">124</span> играют</span>
-              <span class="tgp-name">Краш</span>
-              <div class="tgp-stars">
-                <span class="tgp-ico tgp-ico-gift">🎁</span>
-                <span class="tgp-ico tgp-ico-ton">▽</span>
-                <span class="tgp-ico tgp-ico-star">★</span>
-              </div>
-            </div>
-            <img class="tgp-mascot" src="/assets/crash-mascot-CRHQgfLy.png" alt="Краш"
-                 onerror="this.style.display='none'" />
-          </div>
-
-          <div class="tgp-card" data-game="Мини-игры">
-            <div class="tgp-info">
-              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="43">43</span> играют</span>
-              <span class="tgp-name">Мини-игры</span>
-              <div class="tgp-stars">
-                <span class="tgp-ico tgp-ico-star">★</span>
-                <span class="tgp-ico tgp-ico-ton">▽</span>
-                <span class="tgp-chat-badge">В ЧАТЕ</span>
-              </div>
-            </div>
-            <img class="tgp-mascot" src="/assets/minigames-mascot-HVbEXSoU.png" alt="Мини-игры"
-                 onerror="this.style.display='none'" />
-          </div>
-
         </div>
+        <img class="tgap-mascot" src="/assets/cases-mascot-OxOGWDnB.png" alt="" onerror="this.style.display='none'">
+      </div>
+      <div class="tgap-card" data-game="Краш">
+        <div class="tgap-info">
+          <span class="tgap-badge"><span class="tgap-dot"></span><span class="tgap-cnt" data-base="124">124</span> играют</span>
+          <span class="tgap-name">Краш</span>
+          <div class="tgap-icons">
+            <span class="tgap-ico tgap-ico-gift">🎁</span>
+            <span class="tgap-ico tgap-ico-ton">▽</span>
+            <span class="tgap-ico tgap-ico-star">★</span>
+          </div>
+        </div>
+        <img class="tgap-mascot" src="/assets/crash-mascot-CRHQgfLy.png" alt="" onerror="this.style.display='none'">
+      </div>
+      <div class="tgap-card" data-game="Мини-игры">
+        <div class="tgap-info">
+          <span class="tgap-badge"><span class="tgap-dot"></span><span class="tgap-cnt" data-base="43">43</span> играют</span>
+          <span class="tgap-name">Мини-игры</span>
+          <div class="tgap-icons">
+            <span class="tgap-ico tgap-ico-star">★</span>
+            <span class="tgap-ico tgap-ico-ton">▽</span>
+            <span class="tgap-chat">В ЧАТЕ</span>
+          </div>
+        </div>
+        <img class="tgap-mascot" src="/assets/minigames-mascot-HVbEXSoU.png" alt="" onerror="this.style.display='none'">
       </div>
     </div>
-
     <style>
-      /* Затемнение сверху (баннеры остаются видны, перекрываем только контент под ними) */
-      #tgp-overlay {
+      /* Прямоугольник: полная ширина, НЕ fullscreen,
+         слегка касается баннеров сверху (отрицательный margin-top),
+         внизу заканчивается над нижней навигацией                */
+      #tgap-box {
         position: fixed;
-        /* Начинаем от верха — JS подберёт точку после баннера */
-        top: 0; left: 0; right: 0; bottom: 0;
-        z-index: 9500;
-        pointer-events: none;
+        left: 0;
+        right: 0;
+        /* Начало — прямо под шапкой+баннером, чуть залезает на них */
+        top: var(--tgap-top, 175px);
+        /* Заканчивается над нижним nav (~56px) */
+        bottom: 56px;
+        z-index: 9400;
+        background: #0a0a12;
+        border-radius: 14px 14px 0 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px 10px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        /* Появляется снизу вверх */
+        transform: translateY(100%);
         opacity: 0;
-        transition: opacity 0.22s ease;
+        transition: transform 0.35s cubic-bezier(0.32,0.72,0,1), opacity 0.25s ease;
+        pointer-events: none;
       }
-      #tgp-overlay.tgp-open {
+      #tgap-box.tgap-show {
+        transform: translateY(0);
         opacity: 1;
         pointer-events: all;
       }
 
-      /* Чёрная панель — полная ширина, от точки ниже баннеров до низа экрана */
-      #tgp-panel {
-        position: absolute;
-        left: 0; right: 0; bottom: 0;
-        /* top выставляется динамически через JS (ниже баннера) */
-        top: var(--tgp-top, 38%);
-        background: #0a0a12;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        border-radius: 0;
-        /* плавное появление — выезжает снизу */
-        transform: translateY(calc(100% - var(--tgp-top, 38%)));
-        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-      }
-      #tgp-overlay.tgp-open #tgp-panel {
-        transform: translateY(0);
-      }
-
-      /* Список карточек */
-      .tgp-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 10px 10px 80px; /* 80px — отступ под нижний nav */
-      }
-
-      /* Карточка — точно как на скриншоте */
-      .tgp-card {
+      /* Карточки */
+      .tgap-card {
         display: flex;
         align-items: center;
         justify-content: space-between;
         background: #13141f;
         border: 1px solid rgba(255,255,255,0.06);
         border-radius: 16px;
-        padding: 16px 0 16px 18px;
-        min-height: 110px;
+        padding: 14px 0 14px 18px;
+        min-height: 100px;
+        flex-shrink: 0;
         cursor: pointer;
         overflow: hidden;
-        position: relative;
-        transition: background 0.13s;
+        transition: background 0.12s;
         -webkit-tap-highlight-color: transparent;
       }
-      .tgp-card:active { background: #1a1c2e; }
-
-      .tgp-info {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        flex: 1;
-        z-index: 1;
-      }
-
-      /* Бейдж "N играют" */
-      .tgp-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
+      .tgap-card:active { background: #1a1c2e; }
+      .tgap-info { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+      .tgap-badge {
+        display: inline-flex; align-items: center; gap: 5px;
         background: rgba(74,222,128,0.12);
         border: 1px solid rgba(74,222,128,0.2);
-        border-radius: 20px;
-        padding: 3px 10px 3px 7px;
-        font-family: 'Inter', sans-serif;
-        font-size: 11px;
-        font-weight: 600;
-        color: #4ade80;
-        width: fit-content;
+        border-radius: 20px; padding: 3px 10px 3px 7px;
+        font-family: 'Inter',sans-serif; font-size: 11px; font-weight: 600;
+        color: #4ade80; width: fit-content;
       }
-      .tgp-dot {
-        width: 6px; height: 6px;
-        background: #4ade80;
-        border-radius: 50%;
-        box-shadow: 0 0 5px #4ade80;
-        flex-shrink: 0;
+      .tgap-dot {
+        width: 6px; height: 6px; background: #4ade80;
+        border-radius: 50%; box-shadow: 0 0 5px #4ade80; flex-shrink: 0;
       }
-
-      /* Название игры */
-      .tgp-name {
-        font-family: 'Inter', sans-serif;
-        font-size: 26px;
-        font-weight: 800;
-        color: #fff;
-        line-height: 1;
-        letter-spacing: -0.02em;
+      .tgap-name {
+        font-family: 'Inter',sans-serif;
+        font-size: 25px; font-weight: 800; color: #fff;
+        line-height: 1; letter-spacing: -0.02em;
       }
-
-      /* Иконки под названием */
-      .tgp-stars {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        margin-top: 2px;
+      .tgap-icons { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+      .tgap-ico {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 22px; height: 22px; border-radius: 6px;
+        font-size: 12px; font-weight: 700;
       }
-      .tgp-ico {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 22px; height: 22px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 700;
-      }
-      .tgp-ico-ton  { background: rgba(83,131,254,0.25); color: #5383fe; }
-      .tgp-ico-star { background: rgba(255,193,7,0.22);  color: #ffc107; }
-      .tgp-ico-gift { background: rgba(255,255,255,0.1); color: #fff; font-size: 13px; }
-      .tgp-chat-badge {
-        background: rgba(255,255,255,0.1);
-        border-radius: 6px;
-        padding: 3px 8px;
-        font-family: 'Inter', sans-serif;
-        font-size: 10px;
-        font-weight: 700;
-        color: rgba(255,255,255,0.6);
+      .tgap-ico-ton  { background: rgba(83,131,254,0.25); color: #5383fe; }
+      .tgap-ico-star { background: rgba(255,193,7,0.22);  color: #ffc107; }
+      .tgap-ico-gift { background: rgba(255,255,255,0.1); color: #fff; font-size: 13px; }
+      .tgap-chat {
+        background: rgba(255,255,255,0.1); border-radius: 6px;
+        padding: 3px 8px; font-family: 'Inter',sans-serif;
+        font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6);
         letter-spacing: 0.04em;
       }
-
-      /* Маскот */
-      .tgp-mascot {
-        width: 130px;
-        height: 110px;
-        object-fit: contain;
-        object-position: center right;
-        flex-shrink: 0;
-        filter: drop-shadow(0 6px 14px rgba(0,0,0,0.6));
+      .tgap-mascot {
+        width: 120px; height: 100px; object-fit: contain;
+        object-position: center right; flex-shrink: 0;
+        filter: drop-shadow(0 5px 12px rgba(0,0,0,0.55));
       }
     </style>
-
     <script>
       (function () {
-        var ov  = document.getElementById('tgp-overlay');
-        var pan = document.getElementById('tgp-panel');
+        var box = document.getElementById('tgap-box');
 
-        // Вычисляем точку начала панели (нижний край баннерной зоны)
+        // Вычисляем позицию старта панели: нижний край баннерного блока
         function calcTop() {
-          // Ищем баннерный слайдер / первый крупный изображение-контейнер
-          var banner = document.querySelector(
-            '[class*="banner" i], [class*="slider" i], [class*="carousel" i], [class*="swiper" i]'
-          );
-          if (banner) {
-            var rect = banner.getBoundingClientRect();
-            var t = Math.round(rect.bottom);
-            if (t > 60 && t < window.innerHeight * 0.75) {
-              ov.style.setProperty('--tgp-top', t + 'px');
-              return;
+          var selectors = [
+            '[class*="banner" i]',
+            '[class*="slider" i]',
+            '[class*="carousel" i]',
+            '[class*="swiper" i]',
+          ];
+          for (var s = 0; s < selectors.length; s++) {
+            var el = document.querySelector(selectors[s]);
+            if (el) {
+              var b = Math.round(el.getBoundingClientRect().bottom);
+              if (b > 60 && b < window.innerHeight * 0.7) {
+                // Залезаем на 8px выше нижнего края баннера — «слегка касаемся»
+                box.style.setProperty('--tgap-top', (b - 8) + 'px');
+                return;
+              }
             }
           }
-          // Запасной вариант: 36% высоты экрана
-          ov.style.setProperty('--tgp-top', Math.round(window.innerHeight * 0.36) + 'px');
+          // Запасной: 28% от высоты экрана
+          box.style.setProperty('--tgap-top', Math.round(window.innerHeight * 0.28) + 'px');
         }
 
-        function openP() {
+        function show() {
           calcTop();
-          ov.classList.add('tgp-open');
-          ov.setAttribute('aria-hidden', 'false');
-          document.body.style.overflow = 'hidden';
+          box.classList.add('tgap-show');
         }
-        function closeP() {
-          ov.classList.remove('tgp-open');
-          ov.setAttribute('aria-hidden', 'true');
-          document.body.style.overflow = '';
-        }
-
-        // Закрытие: клик вне панели (в области баннеров выше)
-        ov.addEventListener('click', function (e) {
-          if (!pan.contains(e.target)) closeP();
-        });
 
         // Клик по карточке
-        pan.addEventListener('click', function (e) {
-          var card = e.target.closest('.tgp-card');
+        box.addEventListener('click', function (e) {
+          var card = e.target.closest('.tgap-card');
           if (!card) return;
           console.log('[TopGift] Игра:', card.dataset.game);
-          closeP();
         });
 
-        // Дрейф счётчиков
+        // Дрейф счётчиков онлайна
         setInterval(function () {
-          document.querySelectorAll('.tgp-cnt').forEach(function (el) {
+          document.querySelectorAll('.tgap-cnt').forEach(function (el) {
             var v = parseInt(el.textContent) || parseInt(el.dataset.base) || 10;
             el.textContent = Math.max(1, v + Math.floor(Math.random() * 7) - 3);
           });
         }, 4000);
 
-        // Перехват клика по «Игры» в React-навигации
-        document.addEventListener('click', function (e) {
-          var n = e.target;
-          for (var i = 0; i < 8; i++) {
-            if (!n || n === document.body) break;
-            var t = (n.textContent || '').trim();
-            if (t === 'Игры' || t === 'Games') {
-              setTimeout(openP, 80);
-              break;
-            }
-            n = n.parentElement;
+        // Авто-показ после монтирования React
+        var _shown = false;
+        function tryShow() {
+          if (_shown) return;
+          var root = document.getElementById('root');
+          if (root && root.children.length > 0) {
+            _shown = true;
+            // Небольшая задержка для рендера баннеров
+            setTimeout(show, 600);
           }
-        }, true);
+        }
+
+        var obs = new MutationObserver(function () {
+          tryShow();
+          if (_shown) obs.disconnect();
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var root = document.getElementById('root');
+          if (root) obs.observe(root, { childList: true, subtree: true });
+          setTimeout(tryShow, 1000);
+          setTimeout(function () {
+            if (!_shown) { _shown = true; show(); }
+          }, 2500);
+        });
       })();
     </script>
-    <!-- ===== / GAMES PANEL v3 ===== -->
+    <!-- ===== / GAMES AUTO PANEL ===== -->
 </body>
 </html>
