@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <!-- Запрет кэширования — Telegram WebApp иногда агрессивно кэширует HTML -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>TopGift MiniApp</title>
     <meta name="description" content="TopGift — дарите подарки в Telegram" />
     <meta name="robots" content="index, follow" />
@@ -27,11 +31,9 @@
     </script>
 
     <!--
-      FIX: Отключаем Framer Motion анимации через prefers-reduced-motion.
-      Когда Framer Motion обнаруживает reduced-motion, он мгновенно применяет
-      конечное animate-состояние (opacity:1, y:0) без transition.
-      Это устраняет чёрные прямоугольники из-за застрявших initial {opacity:0}.
-      Скрипт должен стоять ПЕРЕД загрузкой React-бандла.
+      FIX #1: matchMedia override — сообщаем Framer Motion что prefers-reduced-motion,
+      тогда он мгновенно применяет конечный animate-state (opacity:1, y:0).
+      Этот скрипт ОБЯЗАН быть до загрузки React-бандла.
     -->
     <script>
       (function () {
@@ -39,19 +41,18 @@
         window.matchMedia = function (query) {
           if (typeof query === 'string' && query.indexOf('prefers-reduced-motion') !== -1) {
             return {
-              matches: true,
-              media: query,
-              onchange: null,
-              addListener: function () {},
-              removeListener: function () {},
-              addEventListener: function () {},
-              removeEventListener: function () {},
+              matches: true, media: query, onchange: null,
+              addListener: function () {}, removeListener: function () {},
+              addEventListener: function () {}, removeEventListener: function () {},
               dispatchEvent: function () { return false; }
             };
           }
           return _orig
             ? _orig(query)
-            : { matches: false, media: query, onchange: null, addListener: function(){}, removeListener: function(){}, addEventListener: function(){}, removeEventListener: function(){}, dispatchEvent: function(){ return false; } };
+            : { matches: false, media: query, onchange: null,
+                addListener: function(){}, removeListener: function(){},
+                addEventListener: function(){}, removeEventListener: function(){},
+                dispatchEvent: function(){ return false; } };
         };
       })();
     </script>
@@ -59,7 +60,6 @@
     <script type="module" crossorigin src="/assets/index-DI6LDH42.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C1GP4BNZ.css">
 
-    <!-- Переопределения стилей — загружаются ПОСЛЕ compiled CSS -->
     <style>
       /* 1. Скрыть TON-пилюлю в правом верхнем углу */
       div.glass:has(img[alt="TON"]) {
@@ -130,7 +130,7 @@
         padding-right: 12px !important;
       }
 
-      /* 7. Нижний навбар — сплошной чёрный (было: полупрозрачный backdrop-blur) */
+      /* 7. Нижний навбар — сплошной чёрный */
       nav {
         background: rgba(5, 5, 12, 0.99) !important;
         backdrop-filter: none !important;
@@ -141,7 +141,115 @@
       }
     </style>
 
-    <!-- DOM-патчи: логотип и онлайн-счётчик (подключается к реальному API) -->
+    <!--
+      FIX #2: Агрессивный фикс для Framer Motion opacity:0.
+      setProperty('opacity', '1', 'important') на inline style ПОБЕЖДАЕТ последующие
+      el.style.opacity = '0' от анимационного цикла FM, потому что !important
+      имеет приоритет над обычным assignment даже в inline стилях.
+      Запускается по интервалу И через MutationObserver при навигации по вкладкам.
+    -->
+    <script>
+      (function () {
+        var _fixTimer = null;
+        var _fixAttempts = 0;
+        var _maxAttempts = 80; // 4 секунды по 50ms
+
+        function forceGameCardsVisible() {
+          var fixed = 0;
+
+          // Целимся точечно: игровой экран и карточки по Tailwind-классам
+          // Контейнер страницы Игры: className содержит 'space-y-5'
+          var containers = document.querySelectorAll('.space-y-5');
+          for (var i = 0; i < containers.length; i++) {
+            var c = containers[i];
+            var cls = c.className || '';
+            if (cls.indexOf('p-4') !== -1 && cls.indexOf('relative') !== -1) {
+              c.style.setProperty('opacity', '1', 'important');
+              c.style.setProperty('transform', 'none', 'important');
+              fixed++;
+            }
+          }
+
+          // Карточки игр: class содержит 'h-[172px]'
+          var cards = document.querySelectorAll('[class*="h-[172px]"]');
+          for (var j = 0; j < cards.length; j++) {
+            var card = cards[j];
+            card.style.setProperty('opacity', '1', 'important');
+            card.style.setProperty('transform', 'none', 'important');
+            fixed++;
+          }
+
+          // Также исправляем ВСЕХ Framer Motion детей с застрявшим opacity:0
+          // в пределах #root (не трогаем splash, nav и т.д.)
+          var root = document.getElementById('root');
+          if (root) {
+            var all = root.querySelectorAll('*');
+            for (var k = 0; k < all.length; k++) {
+              var el = all[k];
+              // Пропускаем: nav, #tg-splash и их детей
+              if (el.tagName === 'NAV') continue;
+              if (el.id === 'tg-splash') continue;
+              // Фиксируем только те у кого ЯВНО opacity:0 в inline style
+              var inlineOpacity = el.style.opacity;
+              if (inlineOpacity === '0') {
+                el.style.setProperty('opacity', '1', 'important');
+                fixed++;
+              }
+            }
+          }
+
+          return fixed;
+        }
+
+        function startFix() {
+          _fixAttempts = 0;
+          if (_fixTimer) clearInterval(_fixTimer);
+
+          _fixTimer = setInterval(function () {
+            forceGameCardsVisible();
+            _fixAttempts++;
+            if (_fixAttempts >= _maxAttempts) {
+              clearInterval(_fixTimer);
+              _fixTimer = null;
+            }
+          }, 50);
+        }
+
+        // Запуск при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function () {
+          // Немедленно при загрузке
+          setTimeout(startFix, 100);
+
+          // MutationObserver — перезапускаем фикс при любом изменении DOM
+          // (переход между вкладками = React монтирует новый компонент)
+          var navObs = new MutationObserver(function (mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+              if (mutations[i].addedNodes.length > 0) {
+                startFix();
+                break;
+              }
+            }
+          });
+
+          var root = document.getElementById('root');
+          if (root) {
+            navObs.observe(root, { childList: true, subtree: true });
+          }
+        });
+
+        // SPA navigation — history.pushState / popstate
+        var _origPush = window.history.pushState.bind(window.history);
+        window.history.pushState = function () {
+          _origPush.apply(window.history, arguments);
+          setTimeout(startFix, 50);
+        };
+        window.addEventListener('popstate', function () {
+          setTimeout(startFix, 50);
+        });
+      })();
+    </script>
+
+    <!-- DOM-патчи: логотип и онлайн-счётчик -->
     <script>
       (function () {
         var _cachedCount = 1247;
@@ -261,7 +369,6 @@
       })();
     </script>
 
-    <!-- Splash screen -->
     <style>
       #tg-splash {
         position: fixed;
