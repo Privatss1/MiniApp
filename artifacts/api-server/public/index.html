@@ -83,37 +83,33 @@
     </style>
     <script>
       (function () {
-        let onlineCount = 1247;
-        function getOnlineCount() {
-          onlineCount += Math.floor(Math.random() * 11) - 5;
-          if (onlineCount < 1100) onlineCount = 1100;
-          if (onlineCount > 1400) onlineCount = 1400;
-          return onlineCount;
-        }
+        var _cachedCount = 1247;
         function fmtOnline(n) {
           return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
+        }
+        function fetchOnline(cb) {
+          fetch('/api/stats/online')
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d && typeof d.count === 'number') { _cachedCount = d.count; } cb(_cachedCount); })
+            .catch(function() { cb(_cachedCount); });
         }
 
         let plusDone = false;
         let logoDone = false;
         let logoBadgeDone = false;
 
-        // ── Replace the header mascot/logo component with new image + text ──
         function patchLogoImage() {
           if (logoBadgeDone) return;
-          // The logo sits in: div.absolute.left-1/2.-translate-x-1/2.select-none
           const candidates = document.querySelectorAll('div.absolute.select-none');
           for (const el of candidates) {
             const cls = el.className || '';
             if (!cls.includes('left-1/2') && !cls.includes('translate-x')) continue;
             if (el.querySelector('#tg-new-logo')) { logoBadgeDone = true; return; }
-
             const img = document.createElement('img');
             img.id = 'tg-new-logo';
             img.src = '/assets/topgift-splash-logo-nobg.png';
             img.alt = 'TopGift';
             logoDone = true;
-
             el.innerHTML = '';
             el.appendChild(img);
             el.style.filter = 'none';
@@ -122,7 +118,6 @@
           }
         }
 
-        // ── Premium text on "TopGift" label ──
         function patchLogoText() {
           if (logoDone) return;
           const all = document.querySelectorAll('*');
@@ -140,7 +135,6 @@
           }
         }
 
-        // ── Find the purple "+" button ──
         function findPlusBtn() {
           const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
           let t;
@@ -166,9 +160,13 @@
           btn.style.cssText += ';background:rgba(255,255,255,0.12)!important;border:1.5px solid rgba(255,255,255,0.28)!important;color:#fff!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;border-radius:50%!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:14px!important;box-shadow:none!important;padding:0!important;';
           const counter = document.createElement('span');
           counter.className = 'tg-online-counter';
-          counter.textContent = fmtOnline(getOnlineCount());
+          fetchOnline(function(n) {
+            counter.textContent = fmtOnline(n);
+            setInterval(function() {
+              fetchOnline(function(n2) { counter.textContent = fmtOnline(n2); });
+            }, 10000);
+          });
           if (btn.parentNode) btn.parentNode.insertBefore(counter, btn.nextSibling);
-          setInterval(() => { counter.textContent = fmtOnline(getOnlineCount()); }, 3000);
           plusDone = true;
         }
 
