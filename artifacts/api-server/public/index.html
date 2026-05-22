@@ -124,6 +124,31 @@
           0 0 0 1px rgba(255, 255, 255, 0.04) !important;
       }
 
+      /*
+       * FIX CSS: !important в авторских стилях стоит ВЫШЕ WAAPI-анимаций
+       * в каскаде (Author !important > CSS Animations > Inline styles).
+       * Это принудительно делает карточки и контейнер видимыми,
+       * перекрывая Framer Motion-анимации на opacity:0 + translateY.
+       */
+
+      /* Контейнер игровой страницы */
+      [class*="space-y-5"][class*="p-4"] {
+        opacity: 1 !important;
+      }
+      [class*="space-y-5"][class*="p-4"] > * {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      /* Сами карточки h-[172px] и их прямые дети */
+      [class*="h-\[172px\]"] {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      [class*="h-\[172px\]"] > * {
+        opacity: 1 !important;
+      }
+
       /* 6. Горизонтальные отступы для списка карточек */
       .space-y-4:has(.h-\[172px\]) {
         padding-left: 12px !important;
