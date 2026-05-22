@@ -70,10 +70,6 @@ app.use("/api", router);
 const publicDir = path.resolve(__dirname, "../public");
 app.use(express.static(publicDir));
 
-app.get("/app", (_req, res) => {
-  res.sendFile(path.join(publicDir, "app.html"));
-});
-
 app.get("/{*path}", (_req, res) => {
   res.sendFile(path.join(publicDir, "index.html"));
 });
