@@ -14,8 +14,6 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const app: Express = express();
 
-// Replit runs behind a reverse proxy — trust the first hop so
-// express-rate-limit can correctly read the client IP from X-Forwarded-For
 app.set("trust proxy", 1);
 
 app.use(
@@ -80,6 +78,10 @@ app.use("/api", router);
 
 const publicDir = path.resolve(__dirname, "../public");
 app.use(express.static(publicDir));
+
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
+});
 
 app.get("/{*path}", (_req, res) => {
   res.sendFile(path.join(publicDir, "index.html"));
