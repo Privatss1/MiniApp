@@ -5,7 +5,7 @@ function verifyInitData(initData: string, botToken: string): boolean {
   try {
     const params = new URLSearchParams(initData);
     const hash = params.get("hash");
-    if (!hash) return false;
+    if (!hash || !/^[0-9a-f]{64}$/.test(hash)) return false;
 
     params.delete("hash");
 
@@ -41,7 +41,7 @@ export function telegramAuth(
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
   if (!botToken) {
-    next();
+    res.status(500).json({ error: "Server misconfiguration: bot token not set" });
     return;
   }
 
