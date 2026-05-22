@@ -10,7 +10,13 @@ import { logger } from "./lib/logger";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const app: Express = express();
+
+// Replit runs behind a reverse proxy — trust the first hop so
+// express-rate-limit can correctly read the client IP from X-Forwarded-For
+app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
@@ -39,16 +45,21 @@ app.use(
   }),
 );
 
+const allowedOrigins: (string | RegExp)[] = [
+  "https://web.telegram.org",
+  "https://t.me",
+  /\.telegram\.org$/,
+];
+
+if (!isProduction) {
+  allowedOrigins.push(/localhost(:\d+)?$/);
+}
+
 app.use(
   cors({
-    origin: [
-      "https://web.telegram.org",
-      "https://t.me",
-      /\.telegram\.org$/,
-      /localhost(:\d+)?$/,
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Telegram-Init-Data"],
     credentials: true,
   }),
 );
