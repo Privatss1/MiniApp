@@ -236,240 +236,93 @@
       })();
     </script>
   
-    <!-- ===== GAMES OVERLAY (auto-inject) ===== -->
-    <div id="tg-games-overlay">
-      <div class="tgo-cards">
 
-        <div class="tgo-card" data-game="Кейсы">
-          <div class="tgo-card-inner">
-            <span class="tgo-badge">🟢 <span class="tgo-live" data-key="cases">17</span> играет</span>
-            <span class="tgo-name">Кейсы</span>
-            <div class="tgo-stars">
-              <span class="tgo-star">⭐</span><span class="tgo-star">⭐</span>
-            </div>
-          </div>
-          <img class="tgo-mascot" src="/assets/cases-mascot-OxOGWDnB.png" alt="Кейсы" />
+    <!-- ===== GAMES PANEL (on nav click) ===== -->
+    <div id="tgp-overlay" aria-hidden="true">
+      <div id="tgp-panel">
+        <div class="tgp-header">
+          <span class="tgp-title">Игры</span>
+          <button class="tgp-close" id="tgp-close-btn" aria-label="Закрыть">✕</button>
         </div>
-
-        <div class="tgo-card" data-game="Краш">
-          <div class="tgo-card-inner">
-            <span class="tgo-badge">🟢 <span class="tgo-live" data-key="crash">134</span> играет</span>
-            <span class="tgo-name">Краш</span>
-            <div class="tgo-stars">
-              <span class="tgo-star">⭐</span><span class="tgo-star">⭐</span><span class="tgo-star">⭐</span>
+        <div class="tgp-list">
+          <div class="tgp-card" data-game="Кейсы">
+            <div class="tgp-info">
+              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="17">17</span> играет</span>
+              <span class="tgp-name">Кейсы</span>
+              <div class="tgp-stars">⭐⭐</div>
             </div>
+            <img class="tgp-mascot" src="/assets/cases-mascot-OxOGWDnB.png" alt="" onerror="this.style.display='none'" />
           </div>
-          <img class="tgo-mascot" src="/assets/crash-mascot-CRHQgfLy.png" alt="Краш" />
-        </div>
-
-        <div class="tgo-card" data-game="Мини-игры">
-          <div class="tgo-card-inner">
-            <span class="tgo-badge">🟢 <span class="tgo-live" data-key="mini">43</span> играет</span>
-            <span class="tgo-name">Мини-игры</span>
-            <div class="tgo-stars">
-              <span class="tgo-star">⭐</span>
-              <span class="tgo-chat">💬 в чате</span>
+          <div class="tgp-card" data-game="Краш">
+            <div class="tgp-info">
+              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="134">134</span> играет</span>
+              <span class="tgp-name">Краш</span>
+              <div class="tgp-stars">⭐⭐⭐</div>
             </div>
+            <img class="tgp-mascot" src="/assets/crash-mascot-CRHQgfLy.png" alt="" onerror="this.style.display='none'" />
           </div>
-          <img class="tgo-mascot" src="/assets/minigames-mascot-HVbEXSoU.png" alt="Мини-игры" />
+          <div class="tgp-card" data-game="Мини-игры">
+            <div class="tgp-info">
+              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="43">43</span> играет</span>
+              <span class="tgp-name">Мини-игры</span>
+              <div class="tgp-stars">⭐ <span class="tgp-chat">💬 в чате</span></div>
+            </div>
+            <img class="tgp-mascot" src="/assets/minigames-mascot-HVbEXSoU.png" alt="" onerror="this.style.display='none'" />
+          </div>
         </div>
-
       </div>
     </div>
-
     <style>
-      #tg-games-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 9990;
-        background: #07070f;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: 16px 12px 80px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.38s ease;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      #tg-games-overlay.tgo-visible {
-        opacity: 1;
-        pointer-events: all;
-      }
-      .tgo-cards {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-        max-width: 480px;
-        margin: 0 auto;
-      }
-      .tgo-card {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: linear-gradient(135deg, #12171f 0%, #1a2030 100%);
-        border: 1px solid rgba(255,255,255,0.07);
-        border-radius: 16px;
-        padding: 14px 16px 14px 20px;
-        min-height: 90px;
-        cursor: pointer;
-        overflow: hidden;
-        transition: transform 0.15s ease, background 0.15s ease;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .tgo-card:active {
-        transform: scale(0.97);
-        background: linear-gradient(135deg, #1a2030 0%, #20283a 100%);
-      }
-      .tgo-card-inner {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        flex: 1;
-        z-index: 1;
-      }
-      .tgo-badge {
-        font-size: 11px;
-        font-weight: 600;
-        color: rgba(255,255,255,0.55);
-        letter-spacing: 0.01em;
-      }
-      .tgo-name {
-        font-family: 'Inter', sans-serif;
-        font-size: 22px;
-        font-weight: 700;
-        color: #ffffff;
-        line-height: 1.1;
-      }
-      .tgo-stars {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-top: 2px;
-      }
-      .tgo-star {
-        font-size: 14px;
-      }
-      .tgo-chat {
-        font-size: 11px;
-        color: rgba(255,255,255,0.45);
-        margin-left: 2px;
-      }
-      .tgo-mascot {
-        width: 88px;
-        height: 88px;
-        object-fit: contain;
-        flex-shrink: 0;
-        margin-left: 8px;
-        filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
-      }
+      #tgp-overlay{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .28s ease}
+      #tgp-overlay.tgp-open{opacity:1;pointer-events:all}
+      #tgp-panel{position:absolute;bottom:0;left:0;right:0;height:88vh;background:#07070f;border-top:1px solid rgba(255,255,255,.08);border-radius:18px 18px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);overflow:hidden}
+      #tgp-overlay.tgp-open #tgp-panel{transform:translateY(0)}
+      .tgp-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+      .tgp-title{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#fff}
+      .tgp-close{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+      .tgp-close:hover{background:rgba(255,255,255,.16)}
+      .tgp-list{flex:1;overflow-y:auto;padding:12px 14px 20px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
+      .tgp-card{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#12171f,#1c2332);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 14px 14px 18px;min-height:86px;cursor:pointer;overflow:hidden;transition:transform .13s,background .13s;-webkit-tap-highlight-color:transparent}
+      .tgp-card:active{transform:scale(.97)}
+      .tgp-info{display:flex;flex-direction:column;gap:5px;flex:1}
+      .tgp-badge{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:5px}
+      .tgp-dot{display:inline-block;width:6px;height:6px;background:#4ade80;border-radius:50%;box-shadow:0 0 5px #4ade80;flex-shrink:0}
+      .tgp-name{font-family:'Inter',sans-serif;font-size:21px;font-weight:700;color:#fff;line-height:1.1}
+      .tgp-stars{font-size:13px;display:flex;gap:3px;align-items:center}
+      .tgp-chat{font-size:11px;color:rgba(255,255,255,.4)}
+      .tgp-mascot{width:82px;height:82px;object-fit:contain;flex-shrink:0;margin-left:10px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.55))}
     </style>
-
     <script>
-      (function () {
-        var overlay = document.getElementById('tg-games-overlay');
-
-        // Анимируем счётчики игроков — небольшое случайное дрейфование
-        function driftCounters() {
-          document.querySelectorAll('.tgo-live').forEach(function(el) {
-            var v = parseInt(el.textContent) || 0;
-            var delta = Math.floor(Math.random() * 7) - 3;
-            var min = {'cases':5,'crash':50,'mini':10}[el.dataset.key] || 5;
-            var max = {'cases':60,'crash':300,'mini':120}[el.dataset.key] || 200;
-            el.textContent = Math.min(max, Math.max(min, v + delta));
+      (function(){
+        var ov=document.getElementById('tgp-overlay');
+        function open(){ov.classList.add('tgp-open');ov.setAttribute('aria-hidden','false')}
+        function close(){ov.classList.remove('tgp-open');ov.setAttribute('aria-hidden','true')}
+        document.getElementById('tgp-close-btn').addEventListener('click',close);
+        ov.addEventListener('click',function(e){if(e.target===ov)close()});
+        document.getElementById('tgp-panel').addEventListener('click',function(e){
+          var c=e.target.closest('.tgp-card');
+          if(!c)return;
+          console.log('[TopGift] Игра:',c.dataset.game);
+          close();
+        });
+        setInterval(function(){
+          document.querySelectorAll('.tgp-cnt').forEach(function(el){
+            var b=parseInt(el.dataset.base)||10,v=parseInt(el.textContent)||b;
+            el.textContent=Math.max(1,v+Math.floor(Math.random()*7)-3);
           });
-        }
-        setInterval(driftCounters, 4000);
-
-        // Показываем оверлей (вызывается после скрытия splash)
-        function showOverlay() {
-          overlay.classList.add('tgo-visible');
-        }
-
-        // Попытка кликнуть на нужную игру внутри React-приложения
-        function tryNavigateToGame(gameName) {
-          // Сначала убеждаемся что активна вкладка Игры
-          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-          var t;
-          while ((t = walker.nextNode())) {
-            var txt = t.textContent.trim();
-            if (txt === 'Игры' || txt === 'Games') {
-              var node = t.parentElement;
-              for (var i = 0; i < 6; i++) {
-                if (!node || node === document.body) break;
-                var tag = node.tagName;
-                var role = node.getAttribute ? node.getAttribute('role') : null;
-                if (tag === 'BUTTON' || tag === 'A' || role === 'button' || role === 'tab') {
-                  node.click();
-                  break;
-                }
-                node = node.parentElement;
-              }
-              break;
-            }
+        },4000);
+        // Перехват клика на вкладку «Игры»
+        document.addEventListener('click',function(e){
+          var n=e.target;
+          for(var i=0;i<8;i++){
+            if(!n||n===document.body)break;
+            var t=(n.textContent||'').trim();
+            if(t==='Игры'||t==='Games'){setTimeout(open,80);break}
+            n=n.parentElement;
           }
-
-          // Потом ищем карточку с нужным именем
-          setTimeout(function() {
-            var walker2 = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-            var t2;
-            while ((t2 = walker2.nextNode())) {
-              if (t2.textContent.trim() === gameName) {
-                var node2 = t2.parentElement;
-                for (var j = 0; j < 8; j++) {
-                  if (!node2 || node2 === document.body) break;
-                  if (node2.offsetHeight > 40 && node2.offsetHeight < 250 &&
-                      node2.offsetWidth > 100) {
-                    node2.click();
-                    break;
-                  }
-                  node2 = node2.parentElement;
-                }
-                break;
-              }
-            }
-          }, 350);
-        }
-
-        // Скрываем оверлей и переходим в игру
-        overlay.addEventListener('click', function(e) {
-          var card = e.target.closest('.tgo-card');
-          if (!card) return;
-          var gameName = card.dataset.game;
-          overlay.classList.remove('tgo-visible');
-          setTimeout(function() {
-            overlay.style.display = 'none';
-            tryNavigateToGame(gameName);
-          }, 400);
-        });
-
-        // Определяем момент показа — ждём пока React смонтируется
-        var _tgoShown = false;
-        function maybeShow() {
-          if (_tgoShown) return;
-          var root = document.getElementById('root');
-          if (root && root.children.length > 0) {
-            _tgoShown = true;
-            showOverlay();
-          }
-        }
-
-        var _tgoObs = new MutationObserver(function() { maybeShow(); });
-        document.addEventListener('DOMContentLoaded', function() {
-          _tgoObs.observe(document.getElementById('root') || document.body, { childList: true, subtree: true });
-          // Запасные таймауты
-          setTimeout(maybeShow, 800);
-          setTimeout(maybeShow, 1500);
-          setTimeout(function() {
-            if (!_tgoShown) { _tgoShown = true; showOverlay(); }
-          }, 2500);
-        });
+        },true);
       })();
     </script>
-    <!-- ===== / GAMES OVERLAY ===== -->
-  
+    <!-- ===== / GAMES PANEL ===== -->
 </body>
 </html>
