@@ -89,6 +89,13 @@
           0 2px 28px rgba(0, 0, 0, 0.85),
           inset 0 1px 0 rgba(255, 255, 255, 0.07),
           0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+        /* Убираем начальный opacity:0 Framer Motion — карточки видны сразу */
+        opacity: 1 !important;
+      }
+
+      /* Контейнер страницы Игры: Framer Motion стартует с opacity:0 — переопределяем */
+      .space-y-5.p-4.relative {
+        opacity: 1 !important;
       }
 
       /* Горизонтальные отступы для списка карточек */
