@@ -16,24 +16,57 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
       if (window.Telegram && window.Telegram.WebApp) {
-        const tg = window.Telegram.WebApp;
+        var tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
       }
     </script>
+
+    <!--
+      FIX: Отключаем Framer Motion анимации через prefers-reduced-motion.
+      Когда Framer Motion обнаруживает reduced-motion, он мгновенно применяет
+      конечное animate-состояние (opacity:1, y:0) без transition.
+      Это устраняет чёрные прямоугольники из-за застрявших initial {opacity:0}.
+      Скрипт должен стоять ПЕРЕД загрузкой React-бандла.
+    -->
+    <script>
+      (function () {
+        var _orig = window.matchMedia ? window.matchMedia.bind(window) : null;
+        window.matchMedia = function (query) {
+          if (typeof query === 'string' && query.indexOf('prefers-reduced-motion') !== -1) {
+            return {
+              matches: true,
+              media: query,
+              onchange: null,
+              addListener: function () {},
+              removeListener: function () {},
+              addEventListener: function () {},
+              removeEventListener: function () {},
+              dispatchEvent: function () { return false; }
+            };
+          }
+          return _orig
+            ? _orig(query)
+            : { matches: false, media: query, onchange: null, addListener: function(){}, removeListener: function(){}, addEventListener: function(){}, removeEventListener: function(){}, dispatchEvent: function(){ return false; } };
+        };
+      })();
+    </script>
+
     <script type="module" crossorigin src="/assets/index-DI6LDH42.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C1GP4BNZ.css">
-    <!-- Custom overrides — loaded AFTER compiled CSS to win cascade -->
+
+    <!-- Переопределения стилей — загружаются ПОСЛЕ compiled CSS -->
     <style>
-      /* 1. Hide only the top-right TON pill (it uniquely has class "glass") */
+      /* 1. Скрыть TON-пилюлю в правом верхнем углу */
       div.glass:has(img[alt="TON"]) {
         display: none !important;
       }
 
-      /* 2. Premium logo text style */
+      /* 2. Логотип — premium градиентный текст */
       #tg-logo-text {
         font-family: 'Playfair Display', serif !important;
         font-weight: 700 !important;
@@ -44,7 +77,7 @@
         background-clip: text !important;
       }
 
-      /* 3. New logo image replacing the mascot component */
+      /* 3. Новый логотип-изображение */
       #tg-new-logo {
         height: 28px;
         width: auto;
@@ -54,7 +87,7 @@
         filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.4));
       }
 
-      /* 4. Online counter */
+      /* 4. Онлайн-счётчик */
       .tg-online-counter {
         display: inline-flex;
         align-items: center;
@@ -78,10 +111,10 @@
       }
       @keyframes tg-pulse {
         0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.6; transform: scale(1.4); }
+        50%       { opacity: 0.6; transform: scale(1.4); }
       }
 
-      /* 5. Игровые карточки — чёрные прямоугольники (Кейсы / Краш / Мини-игры) */
+      /* 5. Игровые карточки — тёмный фон, рамка, тень */
       .rounded-\[22px\].h-\[172px\] {
         background: #0d0d20 !important;
         border-color: rgba(255, 255, 255, 0.22) !important;
@@ -89,46 +122,57 @@
           0 2px 28px rgba(0, 0, 0, 0.85),
           inset 0 1px 0 rgba(255, 255, 255, 0.07),
           0 0 0 1px rgba(255, 255, 255, 0.04) !important;
-        /* Убираем начальный opacity:0 Framer Motion — карточки видны сразу */
-        opacity: 1 !important;
       }
 
-      /* Контейнер страницы Игры: Framer Motion стартует с opacity:0 — переопределяем */
-      .space-y-5.p-4.relative {
-        opacity: 1 !important;
-      }
-
-      /* Горизонтальные отступы для списка карточек */
+      /* 6. Горизонтальные отступы для списка карточек */
       .space-y-4:has(.h-\[172px\]) {
         padding-left: 12px !important;
         padding-right: 12px !important;
       }
+
+      /* 7. Нижний навбар — сплошной чёрный (было: полупрозрачный backdrop-blur) */
+      nav {
+        background: rgba(5, 5, 12, 0.99) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border-top-color: rgba(255, 255, 255, 0.06) !important;
+        border-left-color: rgba(255, 255, 255, 0.06) !important;
+        border-right-color: rgba(255, 255, 255, 0.06) !important;
+      }
     </style>
+
+    <!-- DOM-патчи: логотип и онлайн-счётчик (подключается к реальному API) -->
     <script>
       (function () {
         var _cachedCount = 1247;
+
         function fmtOnline(n) {
           return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
         }
+
         function fetchOnline(cb) {
           fetch('/api/stats/online')
-            .then(function(r) { return r.json(); })
-            .then(function(d) { if (d && typeof d.count === 'number') { _cachedCount = d.count; } cb(_cachedCount); })
-            .catch(function() { cb(_cachedCount); });
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d && typeof d.count === 'number') { _cachedCount = d.count; }
+              cb(_cachedCount);
+            })
+            .catch(function () { cb(_cachedCount); });
         }
 
-        let plusDone = false;
-        let logoDone = false;
-        let logoBadgeDone = false;
+        var plusDone = false;
+        var logoDone = false;
+        var logoBadgeDone = false;
 
         function patchLogoImage() {
           if (logoBadgeDone) return;
-          const candidates = document.querySelectorAll('div.absolute.select-none');
-          for (const el of candidates) {
-            const cls = el.className || '';
-            if (!cls.includes('left-1/2') && !cls.includes('translate-x')) continue;
+          var candidates = document.querySelectorAll('div.absolute.select-none');
+          for (var i = 0; i < candidates.length; i++) {
+            var el = candidates[i];
+            var cls = el.className || '';
+            if (cls.indexOf('left-1/2') === -1 && cls.indexOf('translate-x') === -1) continue;
             if (el.querySelector('#tg-new-logo')) { logoBadgeDone = true; return; }
-            const img = document.createElement('img');
+            var img = document.createElement('img');
             img.id = 'tg-new-logo';
             img.src = '/assets/topgift-splash-logo-nobg.png';
             img.alt = 'TopGift';
@@ -143,8 +187,9 @@
 
         function patchLogoText() {
           if (logoDone) return;
-          const all = document.querySelectorAll('*');
-          for (const el of all) {
+          var all = document.querySelectorAll('*');
+          for (var i = 0; i < all.length; i++) {
+            var el = all[i];
             if (
               el.childNodes.length === 1 &&
               el.childNodes[0].nodeType === 3 &&
@@ -159,14 +204,14 @@
         }
 
         function findPlusBtn() {
-          const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-          let t;
+          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+          var t;
           while ((t = walker.nextNode())) {
             if (t.textContent.trim() !== '+') continue;
-            let node = t.parentElement;
-            for (let i = 0; i < 6; i++) {
+            var node = t.parentElement;
+            for (var i = 0; i < 6; i++) {
               if (!node) break;
-              const w = node.offsetWidth, h = node.offsetHeight;
+              var w = node.offsetWidth, h = node.offsetHeight;
               if (w > 10 && w < 50 && h > 10 && h < 50 && Math.abs(w - h) < 12) return node;
               node = node.parentElement;
             }
@@ -174,19 +219,22 @@
           return null;
         }
 
+        var _onlineInterval = null;
+
         function patchPlus() {
           if (plusDone) return;
           if (document.querySelector('.tg-online-counter')) { plusDone = true; return; }
-          const btn = findPlusBtn();
+          var btn = findPlusBtn();
           if (!btn || btn.dataset.tgPlusPatched) return;
           btn.dataset.tgPlusPatched = '1';
           btn.style.cssText += ';background:rgba(255,255,255,0.12)!important;border:1.5px solid rgba(255,255,255,0.28)!important;color:#fff!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;border-radius:50%!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:14px!important;box-shadow:none!important;padding:0!important;';
-          const counter = document.createElement('span');
+          var counter = document.createElement('span');
           counter.className = 'tg-online-counter';
-          fetchOnline(function(n) {
+          fetchOnline(function (n) {
             counter.textContent = fmtOnline(n);
-            setInterval(function() {
-              fetchOnline(function(n2) { counter.textContent = fmtOnline(n2); });
+            if (_onlineInterval) clearInterval(_onlineInterval);
+            _onlineInterval = setInterval(function () {
+              fetchOnline(function (n2) { counter.textContent = fmtOnline(n2); });
             }, 10000);
           });
           if (btn.parentNode) btn.parentNode.insertBefore(counter, btn.nextSibling);
@@ -199,12 +247,12 @@
           patchPlus();
         }
 
-        const obs = new MutationObserver(() => {
+        var obs = new MutationObserver(function () {
           runAll();
           if (plusDone && logoDone && logoBadgeDone) obs.disconnect();
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function () {
           obs.observe(document.body, { childList: true, subtree: true });
           setTimeout(runAll, 400);
           setTimeout(runAll, 1200);
@@ -212,6 +260,8 @@
         });
       })();
     </script>
+
+    <!-- Splash screen -->
     <style>
       #tg-splash {
         position: fixed;
@@ -249,12 +299,9 @@
     <script>
       (function () {
         var splash = document.getElementById('tg-splash');
-        // Start fade-out after 1.4s, then remove from DOM
         setTimeout(function () {
           splash.classList.add('tg-splash-hide');
-          setTimeout(function () {
-            splash.remove();
-          }, 600);
+          setTimeout(function () { splash.remove(); }, 600);
         }, 1400);
       })();
     </script>
