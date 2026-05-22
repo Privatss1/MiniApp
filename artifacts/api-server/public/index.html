@@ -164,6 +164,23 @@
         border-left-color: rgba(255, 255, 255, 0.06) !important;
         border-right-color: rgba(255, 255, 255, 0.06) !important;
       }
+
+      /*
+       * NUCLEAR FIX: Все дочерние элементы #root делаем видимыми.
+       * Author !important > CSS Animations (WAAPI) > Inline styles — W3C стандарт.
+       * Это гарантированно перекрывает Framer Motion независимо от версии.
+       * Splash (#tg-splash) находится вне #root — не затрагивается.
+       */
+      #root * {
+        opacity: 1 !important;
+      }
+
+      /*
+       * Разрешаем навбару своё поведение (он внутри #root),
+       * и онлайн-пульсу тоже нужна своя анимация.
+       */
+      nav { opacity: 1 !important; }
+      .tg-online-counter::before { opacity: 1; } /* переопределяем для пульса */
     </style>
 
     <!--
