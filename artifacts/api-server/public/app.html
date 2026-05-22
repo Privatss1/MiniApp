@@ -235,94 +235,86 @@
         }, 1400);
       })();
     </script>
-  
 
-    <!-- ===== GAMES PANEL (on nav click) ===== -->
+    <!-- ===== GAMES PANEL v3 ===== -->
     <div id="tgp-overlay" aria-hidden="true">
       <div id="tgp-panel">
-        <div class="tgp-header">
-          <span class="tgp-title">Игры</span>
-          <button class="tgp-close" id="tgp-close-btn" aria-label="Закрыть">✕</button>
-        </div>
         <div class="tgp-list">
           <div class="tgp-card" data-game="Кейсы">
             <div class="tgp-info">
-              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="17">17</span> играет</span>
+              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="17">17</span> играют</span>
               <span class="tgp-name">Кейсы</span>
-              <div class="tgp-stars">⭐⭐</div>
+              <div class="tgp-stars">
+                <span class="tgp-ico tgp-ico-ton">▽</span>
+                <span class="tgp-ico tgp-ico-star">★</span>
+              </div>
             </div>
-            <img class="tgp-mascot" src="/assets/cases-mascot-OxOGWDnB.png" alt="" onerror="this.style.display='none'" />
+            <img class="tgp-mascot" src="/assets/cases-mascot-OxOGWDnB.png" alt="Кейсы" onerror="this.style.display='none'" />
           </div>
           <div class="tgp-card" data-game="Краш">
             <div class="tgp-info">
-              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="134">134</span> играет</span>
+              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="124">124</span> играют</span>
               <span class="tgp-name">Краш</span>
-              <div class="tgp-stars">⭐⭐⭐</div>
+              <div class="tgp-stars">
+                <span class="tgp-ico tgp-ico-gift">🎁</span>
+                <span class="tgp-ico tgp-ico-ton">▽</span>
+                <span class="tgp-ico tgp-ico-star">★</span>
+              </div>
             </div>
-            <img class="tgp-mascot" src="/assets/crash-mascot-CRHQgfLy.png" alt="" onerror="this.style.display='none'" />
+            <img class="tgp-mascot" src="/assets/crash-mascot-CRHQgfLy.png" alt="Краш" onerror="this.style.display='none'" />
           </div>
           <div class="tgp-card" data-game="Мини-игры">
             <div class="tgp-info">
-              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="43">43</span> играет</span>
+              <span class="tgp-badge"><span class="tgp-dot"></span><span class="tgp-cnt" data-base="43">43</span> играют</span>
               <span class="tgp-name">Мини-игры</span>
-              <div class="tgp-stars">⭐ <span class="tgp-chat">💬 в чате</span></div>
+              <div class="tgp-stars">
+                <span class="tgp-ico tgp-ico-star">★</span>
+                <span class="tgp-ico tgp-ico-ton">▽</span>
+                <span class="tgp-chat-badge">В ЧАТЕ</span>
+              </div>
             </div>
-            <img class="tgp-mascot" src="/assets/minigames-mascot-HVbEXSoU.png" alt="" onerror="this.style.display='none'" />
+            <img class="tgp-mascot" src="/assets/minigames-mascot-HVbEXSoU.png" alt="Мини-игры" onerror="this.style.display='none'" />
           </div>
         </div>
       </div>
     </div>
     <style>
-      #tgp-overlay{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .28s ease}
+      #tgp-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9500;pointer-events:none;opacity:0;transition:opacity .22s ease}
       #tgp-overlay.tgp-open{opacity:1;pointer-events:all}
-      #tgp-panel{position:absolute;bottom:0;left:0;right:0;height:88vh;background:#07070f;border-top:1px solid rgba(255,255,255,.08);border-radius:18px 18px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .32s cubic-bezier(.32,.72,0,1);overflow:hidden}
+      #tgp-panel{position:absolute;left:0;right:0;bottom:0;top:var(--tgp-top,38%);background:#0a0a12;overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
       #tgp-overlay.tgp-open #tgp-panel{transform:translateY(0)}
-      .tgp-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
-      .tgp-title{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#fff}
-      .tgp-close{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
-      .tgp-close:hover{background:rgba(255,255,255,.16)}
-      .tgp-list{flex:1;overflow-y:auto;padding:12px 14px 20px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
-      .tgp-card{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#12171f,#1c2332);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 14px 14px 18px;min-height:86px;cursor:pointer;overflow:hidden;transition:transform .13s,background .13s;-webkit-tap-highlight-color:transparent}
-      .tgp-card:active{transform:scale(.97)}
-      .tgp-info{display:flex;flex-direction:column;gap:5px;flex:1}
-      .tgp-badge{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:5px}
-      .tgp-dot{display:inline-block;width:6px;height:6px;background:#4ade80;border-radius:50%;box-shadow:0 0 5px #4ade80;flex-shrink:0}
-      .tgp-name{font-family:'Inter',sans-serif;font-size:21px;font-weight:700;color:#fff;line-height:1.1}
-      .tgp-stars{font-size:13px;display:flex;gap:3px;align-items:center}
-      .tgp-chat{font-size:11px;color:rgba(255,255,255,.4)}
-      .tgp-mascot{width:82px;height:82px;object-fit:contain;flex-shrink:0;margin-left:10px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.55))}
+      .tgp-list{display:flex;flex-direction:column;gap:8px;padding:10px 10px 80px}
+      .tgp-card{display:flex;align-items:center;justify-content:space-between;background:#13141f;border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px 0 16px 18px;min-height:110px;cursor:pointer;overflow:hidden;transition:background .13s;-webkit-tap-highlight-color:transparent}
+      .tgp-card:active{background:#1a1c2e}
+      .tgp-info{display:flex;flex-direction:column;gap:6px;flex:1;z-index:1}
+      .tgp-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.2);border-radius:20px;padding:3px 10px 3px 7px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#4ade80;width:fit-content}
+      .tgp-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;box-shadow:0 0 5px #4ade80;flex-shrink:0}
+      .tgp-name{font-family:'Inter',sans-serif;font-size:26px;font-weight:800;color:#fff;line-height:1;letter-spacing:-.02em}
+      .tgp-stars{display:flex;align-items:center;gap:5px;margin-top:2px}
+      .tgp-ico{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;font-size:12px;font-weight:700}
+      .tgp-ico-ton{background:rgba(83,131,254,.25);color:#5383fe}
+      .tgp-ico-star{background:rgba(255,193,7,.22);color:#ffc107}
+      .tgp-ico-gift{background:rgba(255,255,255,.1);color:#fff;font-size:13px}
+      .tgp-chat-badge{background:rgba(255,255,255,.1);border-radius:6px;padding:3px 8px;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.04em}
+      .tgp-mascot{width:130px;height:110px;object-fit:contain;object-position:center right;flex-shrink:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
     </style>
     <script>
       (function(){
         var ov=document.getElementById('tgp-overlay');
-        function open(){ov.classList.add('tgp-open');ov.setAttribute('aria-hidden','false')}
-        function close(){ov.classList.remove('tgp-open');ov.setAttribute('aria-hidden','true')}
-        document.getElementById('tgp-close-btn').addEventListener('click',close);
-        ov.addEventListener('click',function(e){if(e.target===ov)close()});
-        document.getElementById('tgp-panel').addEventListener('click',function(e){
-          var c=e.target.closest('.tgp-card');
-          if(!c)return;
-          console.log('[TopGift] Игра:',c.dataset.game);
-          close();
-        });
-        setInterval(function(){
-          document.querySelectorAll('.tgp-cnt').forEach(function(el){
-            var b=parseInt(el.dataset.base)||10,v=parseInt(el.textContent)||b;
-            el.textContent=Math.max(1,v+Math.floor(Math.random()*7)-3);
-          });
-        },4000);
-        // Перехват клика на вкладку «Игры»
-        document.addEventListener('click',function(e){
-          var n=e.target;
-          for(var i=0;i<8;i++){
-            if(!n||n===document.body)break;
-            var t=(n.textContent||'').trim();
-            if(t==='Игры'||t==='Games'){setTimeout(open,80);break}
-            n=n.parentElement;
-          }
-        },true);
+        var pan=document.getElementById('tgp-panel');
+        function calcTop(){
+          var b=document.querySelector('[class*="banner" i],[class*="slider" i],[class*="carousel" i],[class*="swiper" i]');
+          if(b){var rect=b.getBoundingClientRect(),t=Math.round(rect.bottom);if(t>60&&t<window.innerHeight*.75){ov.style.setProperty('--tgp-top',t+'px');return;}}
+          ov.style.setProperty('--tgp-top',Math.round(window.innerHeight*.36)+'px');
+        }
+        function openP(){calcTop();ov.classList.add('tgp-open');ov.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+        function closeP(){ov.classList.remove('tgp-open');ov.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+        ov.addEventListener('click',function(e){if(!pan.contains(e.target))closeP();});
+        pan.addEventListener('click',function(e){var c=e.target.closest('.tgp-card');if(!c)return;console.log('[TopGift] Игра:',c.dataset.game);closeP();});
+        setInterval(function(){document.querySelectorAll('.tgp-cnt').forEach(function(el){var v=parseInt(el.textContent)||parseInt(el.dataset.base)||10;el.textContent=Math.max(1,v+Math.floor(Math.random()*7)-3);});},4000);
+        document.addEventListener('click',function(e){var n=e.target;for(var i=0;i<8;i++){if(!n||n===document.body)break;var t=(n.textContent||'').trim();if(t==='Игры'||t==='Games'){setTimeout(openP,80);break;}n=n.parentElement;}},true);
       })();
     </script>
-    <!-- ===== / GAMES PANEL ===== -->
+    <!-- ===== / GAMES PANEL v3 ===== -->
 </body>
 </html>
